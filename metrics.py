@@ -1,6 +1,7 @@
 import skimage
 import cv2
-from skimage.measure import compare_psnr, compare_ssim
+from skimage.metrics import peak_signal_noise_ratio
+from skimage.metrics import structural_similarity as ssim
 import lpips
 import torch
 import numpy as np
@@ -10,15 +11,13 @@ loss_fn.cuda()
 
 
 def calc_psnr(im1, im2):
-    im1_y = cv2.cvtColor(im1, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
-    im2_y = cv2.cvtColor(im2, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
-    return compare_psnr(im1_y, im2_y)
+    return peak_signal_noise_ratio(im1, im2)
 
 
 def calc_ssim(im1, im2):
     im1_y = cv2.cvtColor(im1, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
     im2_y = cv2.cvtColor(im2, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
-    return compare_ssim(im1_y, im2_y)
+    return ssim(im1_y, im2_y)
 
 
 def im2tensor(image, imtype=np.uint8, cent=1.0, factor=255.0 / 2.0):
