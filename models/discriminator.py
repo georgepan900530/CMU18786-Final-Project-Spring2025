@@ -5,6 +5,7 @@ from torch.autograd import Variable
 import torch.utils.data as Data
 import torch.nn.functional as F
 import torchvision
+from .modules import DSConv
 
 # Tools lib
 import numpy as np
