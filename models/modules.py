@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from einops.layers.torch import Rearrange
 
 
 #  Depthwise Separable Convolution
@@ -33,10 +34,87 @@ class DSConv(nn.Module):
         return x
 
 
+# Patchify the image into smaller patches for transformer.
+# Reference from the implementation of ViT (https://github.com/lucidrains/vit-pytorch/blob/main/vit_pytorch/vit.py)
+class Patchify(nn.Module):
+    """
+    Patchify the image into smaller patches for transformer, and then embed the patches into a vector.
+
+    Params
+    ------
+    patch_height: int
+        Height of the patch
+    patch_width: int
+        Width of the patch
+    embed_dim: int
+        Dimension of the embedded patches
+    num_channels: int
+        Number of channels in the image
+
+    Returns
+    -------
+    patches: Tensor
+        Tensor of shape (B, num_patches, embed_dim)
+    """
+
+    def __init__(self, patch_height, patch_width, embed_dim, num_channels=3):
+        super(Patchify, self).__init__()
+        self.patch_height = patch_height
+        self.patch_width = patch_width
+        patch_dim = num_channels * patch_height * patch_width
+        self.to_patch_embedding = nn.Sequential(
+            Rearrange(
+                "b c (h p1) (w p2) -> b (h w) (p1 p2 c)",  # Rearrange the image into patches
+                p1=patch_height,
+                p2=patch_width,
+            ),
+            nn.LayerNorm(patch_dim),
+            nn.Linear(patch_dim, embed_dim),
+            nn.LayerNorm(embed_dim),
+        )
+
+    def forward(self, img):
+        return self.to_patch_embedding(img)
+
+
 class MultiHeadAttentionBlock(nn.Module):
+    """
+    Multi-head attention block.
+
+    Params
+    ------
+    embed_dim: int
+        Dimension of the embedded patches
+    num_heads: int
+        Number of attention heads
+
+    Returns
+    -------
+    out: Tensor
+        Tensor of shape (B, N, embed_dim)
+    """
+
     def __init__(self, embed_dim, num_heads):
         super(MultiHeadAttentionBlock, self).__init__()
         self.embed_dim = embed_dim
         self.num_heads = num_heads
-        assert embed_dim % num_heads == 0, "embed_dim must be divisible by num_heads"
-        self.head_dim = embed_dim // num_heads
+        self.head_proj = nn.Linear(embed_dim, embed_dim, bias=False)
+
+    def forward(self, q, k, v):
+        B, N, D = q.shape
+        B, T, D = k.shape
+        assert k.shape == v.shape
+        H = self.num_heads
+        assert D % H == 0, "embed_dim must be divisible by num_heads"
+        d = D // H
+
+        q = self.head_proj(q).view(B, N, H, d).transpose(1, 2)
+        k = self.head_proj(k).view(B, T, H, d).transpose(1, 2)
+        v = self.head_proj(v).view(B, T, H, d).transpose(1, 2)
+
+        dot_product = q @ k.transpose(-2, -1)
+        dot_product = dot_product / np.sqrt(d)
+        dot_product = F.softmax(dot_product, dim=-1)
+        out = dot_product @ v
+        out = out.transpose(1, 2).contiguous().view(B, N, D)
+        return out
