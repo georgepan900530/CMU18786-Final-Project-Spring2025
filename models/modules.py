@@ -31,3 +31,12 @@ class DSConv(nn.Module):
         x = self.depthwise(x)
         x = self.pointwise(x)
         return x
+
+
+class MultiHeadAttentionBlock(nn.Module):
+    def __init__(self, embed_dim, num_heads):
+        super(MultiHeadAttentionBlock, self).__init__()
+        self.embed_dim = embed_dim
+        self.num_heads = num_heads
+        assert embed_dim % num_heads == 0, "embed_dim must be divisible by num_heads"
+        self.head_dim = embed_dim // num_heads

@@ -89,6 +89,7 @@ class Generator(nn.Module):
         mask = Variable(torch.ones(batch_size, 1, row, col)).to(device) / 2.0
         h = Variable(torch.zeros(batch_size, 32, row, col)).to(device)
         c = Variable(torch.zeros(batch_size, 32, row, col)).to(device)
+        # The author use generative model to first predict N masks for raindrop
         mask_list = []
         for i in range(ITERATION):
             x = torch.cat((input, mask), 1)
@@ -112,6 +113,7 @@ class Generator(nn.Module):
             h = o * F.tanh(c)
             mask = self.det_conv_mask(h)
             mask_list.append(mask)
+        # The last mask is concatenated with the input and passed to the autoencoder
         x = torch.cat((input, mask), 1)
         x = self.conv1(x)
         res1 = x

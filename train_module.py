@@ -28,9 +28,10 @@ from tensorboardX import SummaryWriter
 
 class trainer:
     def __init__(self, opt):
-
-        self.net_D = Discriminator().cuda()
-        self.net_G = Generator().cuda()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # self.net_D = Discriminator().to(self.device)
+        self.net_D = DCNDiscriminator().to(self.device)
+        self.net_G = Generator().to(self.device)
         self.optim1 = torch.optim.Adam(
             filter(lambda p: p.requires_grad, self.net_G.parameters()),
             lr=opt.lr,
@@ -69,9 +70,9 @@ class trainer:
         # MAP Loss
         self.criterionMAP = MAPLoss(gamma=0.05)
         # MSE Loss
-        self.criterionMSE = nn.MSELoss().cuda()
+        self.criterionMSE = nn.MSELoss().to(self.device)
 
-        self.out_path = "./weight/"
+        self.out_path = "./weights/"
 
     def forward_process(self, I_, GT, is_train=True):
         M_ = []

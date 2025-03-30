@@ -27,6 +27,7 @@ def get_args():
     parser.add_argument("--input_dir", type=str)
     parser.add_argument("--output_dir", type=str)
     parser.add_argument("--gt_dir", type=str)
+    parser.add_argument("ckpt_path", type=str, default="./weights/baseline_gen.pkl")
     args = parser.parse_args()
     return args
 
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     args = get_args()
 
     model = Generator().cuda()
-    model.load_state_dict(torch.load("./weights/gen.pkl"))
+    model.load_state_dict(torch.load(args.ckpt_path))
 
     if args.mode == "demo":
         input_list = sorted(os.listdir(args.input_dir))
