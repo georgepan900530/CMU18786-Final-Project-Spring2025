@@ -13,6 +13,9 @@ import random
 import time
 import os
 
+# Custom modules
+from .modules import MultiHeadAttentionBlock, Patchify
+
 # Set iteration time
 ITERATION = 4
 
