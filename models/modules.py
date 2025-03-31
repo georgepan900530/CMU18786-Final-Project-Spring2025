@@ -148,7 +148,7 @@ class FeedForward(nn.Module):
 
 class Transformer(nn.Module):
     def __init__(self, dim, depth, heads, mlp_dim, dropout=0.0):
-        super().__init__()
+        super(Transformer, self).__init__()
         self.norm = nn.LayerNorm(dim)
         self.layers = nn.ModuleList([])
         for _ in range(depth):
@@ -167,3 +167,9 @@ class Transformer(nn.Module):
             x = ff(x) + x
 
         return self.norm(x)
+
+
+class RainDropMaskDecoder(nn.Module):
+    def __init__(self, embed_dim, num_heads, depth, mlp_dim, dropout=0.0):
+        super(RainDropMaskDecoder, self).__init__()
+        pass
