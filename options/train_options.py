@@ -25,7 +25,7 @@ class TrainOptions:
         self.parser.add_argument(
             "--checkpoint_dir",
             type=str,
-            default="./checkpoints",
+            default="./weights/DSConv",
             help="path to save model",
         )
         self.parser.add_argument(
@@ -64,6 +64,9 @@ class TrainOptions:
         if not self.initialized:
             self.initialize()
         self.opt = self.parser.parse_args()
+        if not os.path.exists(self.opt.checkpoint_dir):
+            print(f"Checkpoint directory {self.opt.checkpoint_dir} does not exist. Creating it now...")
+            os.mkdir(self.opt.checkpoint_dir)
         gpu = list(map(int, self.opt.gpu.split(",")))
         self.opt.gpu = gpu
         if len(gpu) > 0:

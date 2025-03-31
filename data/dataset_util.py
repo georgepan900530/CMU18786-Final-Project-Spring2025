@@ -14,7 +14,7 @@ class RainDataset(Dataset):
         else:
             self.transform = transforms.Compose(
                 [
-                    transforms.Resize((480, 320)),
+                    transforms.Resize((224, 224)),
                     transforms.ToTensor(),
                 ]
             )

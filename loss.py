@@ -104,6 +104,7 @@ class MultiscaleLoss(nn.Module):
         super(MultiscaleLoss, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.loss = nn.MSELoss()  # 不需要额外调用 .cuda()，后面会用 .to(self.device)
+        self.loss = nn.MSELoss().to(self.device)
         self.ld = ld
         self.batch = batch
 
@@ -127,7 +128,7 @@ class MultiscaleLoss(nn.Module):
 
         loss_ML = 0.0
         for i in range(len(self.ld)):
-            loss_ML += self.ld[i] * self.loss(S_[i], T_[i])
+            loss_ML += self.ld[i] * self.loss(S_[i], T_[i].to(self.device))
         return loss_ML
 
 

@@ -14,7 +14,7 @@ import time
 import os
 
 # Custom modules
-from .modules import MultiHeadAttentionBlock, Patchify, DSConv
+from .modules import DSConv
 
 # Set iteration time
 ITERATION = 4

@@ -75,9 +75,6 @@ class trainer:
         self.criterionMSE = nn.MSELoss().to(self.device)
 
         self.out_path = "./weights/DSConv/"
-        if not os.path.exists(self.out_path):
-            print("Creating directory: {}".format(self.out_path))
-            os.mkdir(self.out_path)
 
     def forward_process(self, I_, GT, is_train=True):
         M_ = []
