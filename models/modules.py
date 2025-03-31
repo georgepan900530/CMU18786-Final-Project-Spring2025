@@ -46,88 +46,20 @@ class DSConv(nn.Module):
 
 # Patchify the image into smaller patches for transformer.
 # Reference from the implementation of ViT (https://github.com/lucidrains/vit-pytorch/blob/main/vit_pytorch/vit.py)
-class Patchify(nn.Module):
-    """
-    Patchify the image into smaller patches for transformer, and then embed the patches into a vector.
+import torch
+from torch import nn
 
-    Params
-    ------
-    patch_height: int
-        Height of the patch
-    patch_width: int
-        Width of the patch
-    embed_dim: int
-        Dimension of the embedded patches
-    num_channels: int
-        Number of channels in the image
+from einops import rearrange, repeat
+from einops.layers.torch import Rearrange
 
-    Returns
-    -------
-    patches: Tensor
-        Tensor of shape (B, num_patches, embed_dim)
-    """
-
-    def __init__(self, patch_height, patch_width, embed_dim, num_channels=3):
-        super(Patchify, self).__init__()
-        self.patch_height = patch_height
-        self.patch_width = patch_width
-        patch_dim = num_channels * patch_height * patch_width
-        self.to_patch_embedding = nn.Sequential(
-            Rearrange(
-                "b c (h p1) (w p2) -> b (h w) (p1 p2 c)",  # Rearrange the image into patches
-                p1=patch_height,
-                p2=patch_width,
-            ),
-            nn.LayerNorm(patch_dim),
-            nn.Linear(patch_dim, embed_dim),
-            nn.LayerNorm(embed_dim),
-        )
-
-    def forward(self, img):
-        return self.to_patch_embedding(img)
+# helpers
 
 
-class MultiHeadAttentionBlock(nn.Module):
-    """
-    Multi-head attention block.
+def pair(t):
+    return t if isinstance(t, tuple) else (t, t)
 
-    Params
-    ------
-    embed_dim: int
-        Dimension of the embedded patches
-    num_heads: int
-        Number of attention heads
 
-    Returns
-    -------
-    out: Tensor
-        Tensor of shape (B, N, embed_dim)
-    """
-
-    def __init__(self, embed_dim, num_heads):
-        super(MultiHeadAttentionBlock, self).__init__()
-        self.embed_dim = embed_dim
-        self.num_heads = num_heads
-        self.head_proj = nn.Linear(embed_dim, embed_dim, bias=False)
-
-    def forward(self, q, k, v):
-        B, N, D = q.shape
-        B, T, D = k.shape
-        assert k.shape == v.shape
-        H = self.num_heads
-        assert D % H == 0, "embed_dim must be divisible by num_heads"
-        d = D // H
-
-        q = self.head_proj(q).view(B, N, H, d).transpose(1, 2)
-        k = self.head_proj(k).view(B, T, H, d).transpose(1, 2)
-        v = self.head_proj(v).view(B, T, H, d).transpose(1, 2)
-
-        dot_product = q @ k.transpose(-2, -1)
-        dot_product = dot_product / np.sqrt(d)
-        dot_product = F.softmax(dot_product, dim=-1)
-        out = dot_product @ v
-        out = out.transpose(1, 2).contiguous().view(B, N, D)
-        return out
+# classes
 
 
 class FeedForward(nn.Module):
@@ -146,16 +78,54 @@ class FeedForward(nn.Module):
         return self.net(x)
 
 
+class Attention(nn.Module):
+    def __init__(self, dim, heads=8, dim_head=64, dropout=0.0):
+        super().__init__()
+        inner_dim = dim_head * heads
+        project_out = not (heads == 1 and dim_head == dim)
+
+        self.heads = heads
+        self.scale = dim_head**-0.5
+
+        self.norm = nn.LayerNorm(dim)
+
+        self.attend = nn.Softmax(dim=-1)
+        self.dropout = nn.Dropout(dropout)
+
+        self.to_qkv = nn.Linear(dim, inner_dim * 3, bias=False)
+
+        self.to_out = (
+            nn.Sequential(nn.Linear(inner_dim, dim), nn.Dropout(dropout))
+            if project_out
+            else nn.Identity()
+        )
+
+    def forward(self, x):
+        x = self.norm(x)
+
+        qkv = self.to_qkv(x).chunk(3, dim=-1)
+        q, k, v = map(lambda t: rearrange(t, "b n (h d) -> b h n d", h=self.heads), qkv)
+
+        dots = torch.matmul(q, k.transpose(-1, -2)) * self.scale
+
+        attn = self.attend(dots)
+        attn = self.dropout(attn)
+
+        out = torch.matmul(attn, v)
+        out = rearrange(out, "b h n d -> b n (h d)")
+        return self.to_out(out)
+
+
 class Transformer(nn.Module):
-    def __init__(self, dim, depth, heads, mlp_dim, dropout=0.0):
-        super(Transformer, self).__init__()
+    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout=0.0):
+        super().__init__()
         self.norm = nn.LayerNorm(dim)
         self.layers = nn.ModuleList([])
         for _ in range(depth):
             self.layers.append(
                 nn.ModuleList(
                     [
-                        MultiHeadAttentionBlock(dim, num_heads=heads),
+                        Attention(dim, heads=heads, dim_head=dim_head, dropout=dropout),
                         FeedForward(dim, mlp_dim, dropout=dropout),
                     ]
                 )

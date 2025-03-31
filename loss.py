@@ -11,6 +11,7 @@ from torchvision.models.vgg import vgg16
 import numpy as np
 import torch.nn.functional as F
 
+
 class GANLoss(nn.Module):
     def __init__(self, real_label=1.0, fake_label=0.0):
         super(GANLoss, self).__init__()
@@ -22,13 +23,13 @@ class GANLoss(nn.Module):
     def convert_tensor(self, input, is_real):
         device = input.device
         if is_real:
-            return Variable(
-                torch.FloatTensor(input.size()).fill_(self.real_label)
-            ).to(device)
+            return Variable(torch.FloatTensor(input.size()).fill_(self.real_label)).to(
+                device
+            )
         else:
-            return Variable(
-                torch.FloatTensor(input.size()).fill_(self.fake_label)
-            ).to(device)
+            return Variable(torch.FloatTensor(input.size()).fill_(self.fake_label)).to(
+                device
+            )
 
     def __call__(self, input, is_real):
         return self.loss(input, self.convert_tensor(input, is_real))
@@ -39,7 +40,8 @@ class AttentionLoss(nn.Module):
         super(AttentionLoss, self).__init__()
         self.theta = theta
         self.iteration = iteration
-        self.loss = nn.MSELoss().cuda()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.loss = nn.MSELoss().to(self.device)
 
     def __call__(self, A_, M_):
         loss_ATT = None
@@ -107,7 +109,7 @@ class MultiscaleLoss(nn.Module):
 
     def forward(self, S_, gt):
         """
-        S_ : list of generator outputs at different scales, e.g., 
+        S_ : list of generator outputs at different scales, e.g.,
              S_[0]: [B, 3, H_small, W_small]
              S_[1]: [B, 3, H_mid,   W_mid]
              S_[2]: [B, 3, H_orig,  W_orig]
@@ -117,8 +119,12 @@ class MultiscaleLoss(nn.Module):
         scales = [0.25, 0.5, 1.0]
         T_ = []
         for scale in scales:
-            T_.append(F.interpolate(gt, scale_factor=scale, mode='bilinear', align_corners=False))
-        
+            T_.append(
+                F.interpolate(
+                    gt, scale_factor=scale, mode="bilinear", align_corners=False
+                )
+            )
+
         loss_ML = 0.0
         for i in range(len(self.ld)):
             loss_ML += self.ld[i] * self.loss(S_[i], T_[i])
