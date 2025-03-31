@@ -145,7 +145,7 @@ class trainer:
         writer = SummaryWriter()
         count = 0
         before_loss = 10000000
-        for epoch in range(self.start, self.iter + 1):
+        for epoch in tqdm(range(self.start, self.iter + 1)):
             for i, data in enumerate(self.train_loader):
                 count += 1
                 I_, GT_ = data
