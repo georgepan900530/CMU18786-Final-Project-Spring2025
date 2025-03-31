@@ -159,7 +159,7 @@ class RainDropMaskDecoder(nn.Module):
         depth,
         mlp_dim,
         dropout=0.0,
-        img_size=224,
+        img_size=(480, 320),
         patch_size=16,
     ):
         super(RainDropMaskDecoder, self).__init__()
