@@ -9,7 +9,15 @@ class RainDataset(Dataset):
         self.root_dir = os.path.join(root_dir, "test_a" if is_eval else "train")
         self.data_dir = os.path.join(self.root_dir, "data")
         self.gt_dir = os.path.join(self.root_dir, "gt")
-        self.transform = transform or transforms.ToTensor()
+        if transform:
+            self.transform = transform
+        else:
+            self.transform = transforms.Compose(
+                [
+                    transforms.Resize((224, 224)),
+                    transforms.ToTensor(),
+                ]
+            )
 
         self.filenames = sorted(os.listdir(self.data_dir))
 
@@ -23,17 +31,11 @@ class RainDataset(Dataset):
         gt_filename = filename.replace("_rain", "_clean")
         gt_path = os.path.join(self.gt_dir, gt_filename)
 
-        data_img = Image.open(data_path).convert("RGB").resize((480, 320))
-        gt_img = Image.open(gt_path).convert("RGB").resize((480, 320))
+        data_img = Image.open(data_path).convert("RGB")
+        gt_img = Image.open(gt_path).convert("RGB")
 
-        transform = transforms.Compose(
-            [
-                transforms.ToTensor(),
-            ]
-        )
-
-        data_tensor = transform(data_img)
-        gt_tensor = transform(gt_img)
+        data_tensor = self.transform(data_img)
+        gt_tensor = self.transform(gt_img)
 
         # print("data tensor shape:", data_tensor.shape)
 

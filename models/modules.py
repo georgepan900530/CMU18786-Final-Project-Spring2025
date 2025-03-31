@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from einops.layers.torch import Rearrange
+from einops import rearrange, repeat
 
 
 class DSConv(nn.Module):
@@ -46,20 +47,10 @@ class DSConv(nn.Module):
 
 # Patchify the image into smaller patches for transformer.
 # Reference from the implementation of ViT (https://github.com/lucidrains/vit-pytorch/blob/main/vit_pytorch/vit.py)
-import torch
-from torch import nn
-
-from einops import rearrange, repeat
-from einops.layers.torch import Rearrange
-
-# helpers
 
 
 def pair(t):
     return t if isinstance(t, tuple) else (t, t)
-
-
-# classes
 
 
 class FeedForward(nn.Module):
@@ -140,6 +131,76 @@ class Transformer(nn.Module):
 
 
 class RainDropMaskDecoder(nn.Module):
-    def __init__(self, embed_dim, num_heads, depth, mlp_dim, dropout=0.0):
+    """
+    RainDropMaskDecoder is a module that decodes the transformer latent features into the rain drop mask.
+
+    Params
+    ------
+    embed_dim: int
+        Dimension of the transformer latent features
+    num_heads: int
+        Number of heads in the transformer
+    depth: int
+        Number of layers in the transformer
+    mlp_dim: int
+        Dimension of the feed forward network
+    dropout: float
+        Dropout rate
+    img_size: int or tuple
+        Size of the input image (height, width)
+    patch_size: int or tuple
+        Size of the patches (height, width)
+    """
+
+    def __init__(
+        self,
+        embed_dim,
+        num_heads,
+        depth,
+        mlp_dim,
+        dropout=0.0,
+        img_size=224,
+        patch_size=16,
+    ):
         super(RainDropMaskDecoder, self).__init__()
-        pass
+
+        # Process image and patch sizes
+        img_height, img_width = pair(img_size)
+        patch_height, patch_width = pair(patch_size)
+
+        # Calculate number of patches
+        self.num_patches = (img_height // patch_height) * (img_width // patch_width)
+        self.patch_dim = (patch_height, patch_width)
+
+        # Transformer for processing encoded features
+        self.transformer = Transformer(
+            dim=embed_dim,
+            depth=depth,
+            heads=num_heads,
+            dim_head=embed_dim // num_heads,
+            mlp_dim=mlp_dim,
+            dropout=dropout,
+        )
+
+        # Decoder layers to upsample back to original image size
+        self.decoder = nn.Sequential(
+            nn.Linear(embed_dim, patch_height * patch_width),
+            Rearrange(
+                "b (h w) (p1 p2) -> b 1 (h p1) (w p2)",
+                h=img_height // patch_height,
+                w=img_width // patch_width,
+                p1=patch_height,
+                p2=patch_width,
+            ),
+            nn.Conv2d(1, 16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(16, 1, kernel_size=3, padding=1),
+            nn.Sigmoid(),  # Output a mask with values between 0 and 1
+        )
+
+    def forward(self, x):
+        # x shape: [batch_size, num_patches, embed_dim]
+        x = self.transformer(x)
+        # Decode the transformer output to image space
+        mask = self.decoder(x)
+        return mask
