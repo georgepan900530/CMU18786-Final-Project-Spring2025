@@ -9,7 +9,7 @@ import cv2
 from torch.autograd import Variable
 from torchvision.models.vgg import vgg16
 import numpy as np
-
+import torch.nn.functional as F
 
 class GANLoss(nn.Module):
     def __init__(self, real_label=1.0, fake_label=0.0):
@@ -20,17 +20,18 @@ class GANLoss(nn.Module):
         self.loss = nn.BCELoss().cuda()
 
     def convert_tensor(self, input, is_real):
+        device = input.device
         if is_real:
             return Variable(
                 torch.FloatTensor(input.size()).fill_(self.real_label)
-            ).cuda()
+            ).to(device)
         else:
             return Variable(
                 torch.FloatTensor(input.size()).fill_(self.fake_label)
-            ).cuda()
+            ).to(device)
 
     def __call__(self, input, is_real):
-        return self.loss(input, self.convert_tensor(input, is_real).cuda())
+        return self.loss(input, self.convert_tensor(input, is_real))
 
 
 class AttentionLoss(nn.Module):
@@ -63,7 +64,8 @@ def trainable(net, trainable):
 class PerceptualLoss(nn.Module):
     def __init__(self):
         super(PerceptualLoss, self).__init__()
-        self.model = vgg16(pretrained=True).cuda()
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = vgg16(pretrained=True).to(device)
         trainable(self.model, False)
 
         self.loss = nn.MSELoss().cuda()
@@ -98,68 +100,42 @@ class PerceptualLoss(nn.Module):
 class MultiscaleLoss(nn.Module):
     def __init__(self, ld=[0.6, 0.8, 1.0], batch=1):
         super(MultiscaleLoss, self).__init__()
-        self.loss = nn.MSELoss().cuda()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.loss = nn.MSELoss()  # 不需要额外调用 .cuda()，后面会用 .to(self.device)
         self.ld = ld
         self.batch = batch
 
-    def __call__(self, S_, gt):
-        # 1,128,256,3
+    def forward(self, S_, gt):
+        """
+        S_ : list of generator outputs at different scales, e.g., 
+             S_[0]: [B, 3, H_small, W_small]
+             S_[1]: [B, 3, H_mid,   W_mid]
+             S_[2]: [B, 3, H_orig,  W_orig]
+        gt : ground truth tensor, shape [B, 3, H, W]
+        """
+        # 定义各尺度的缩放比例（和生成器对应）
+        scales = [0.25, 0.5, 1.0]
         T_ = []
-        # print S_[0].shape[0]
-        for i in range(S_[0].shape[0]):
-            temp = []
-            x = (np.array(gt[i]) * 255.0).astype(np.uint8)
-            # print (x.shape, x.dtype)
-            t = cv2.resize(
-                x, None, fx=1.0 / 4.0, fy=1.0 / 4.0, interpolation=cv2.INTER_AREA
-            )
-            t = np.expand_dims(
-                (t / 255.0).astype(np.float32).transpose(2, 0, 1), axis=0
-            )
-            temp.append(t)
-            t = cv2.resize(
-                x, None, fx=1.0 / 2.0, fy=1.0 / 2.0, interpolation=cv2.INTER_AREA
-            )
-            t = np.expand_dims(
-                (t / 255.0).astype(np.float32).transpose(2, 0, 1), axis=0
-            )
-            temp.append(t)
-            x = np.expand_dims(
-                (x / 255.0).astype(np.float32).transpose(2, 0, 1), axis=0
-            )
-            temp.append(x)
-            T_.append(temp)
-        temp_T = []
+        for scale in scales:
+            T_.append(F.interpolate(gt, scale_factor=scale, mode='bilinear', align_corners=False))
+        
+        loss_ML = 0.0
         for i in range(len(self.ld)):
-            # if self.batch == 1:
-            #     temp_T.append(Variable(torch.from_numpy(T_[0][i])).cuda())
-            # else:
-            for j in range((S_[0].shape[0])):
-                if j == 0:
-                    x = T_[j][i]
-                else:
-                    x = np.concatenate((x, T_[j][i]), axis=0)
-            temp_T.append(Variable(torch.from_numpy(x)).cuda())
-        T_ = temp_T
-        loss_ML = None
-        for i in range(len(self.ld)):
-            if i == 0:
-                loss_ML = self.ld[i] * self.loss(S_[i], T_[i])
-            else:
-                loss_ML += self.ld[i] * self.loss(S_[i], T_[i])
-
-        return loss_ML / float(S_[0].shape[0])
+            loss_ML += self.ld[i] * self.loss(S_[i], T_[i])
+        return loss_ML
 
 
 class MAPLoss(nn.Module):
     def __init__(self, gamma=0.05):
         super(MAPLoss, self).__init__()
-        self.loss = nn.MSELoss().cuda()
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.loss = nn.MSELoss().to(device)
         self.gamma = gamma
 
     # D_map_O, D_map_R
     def __call__(self, D_O, D_R, A_N):
-        Z = Variable(torch.zeros(D_R.shape)).cuda()
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        Z = Variable(torch.zeros(D_R.shape)).to(device)
         D_A = self.loss(D_O, A_N)
         D_Z = self.loss(D_R, Z)
         return self.gamma * (D_A + D_Z)

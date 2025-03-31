@@ -67,7 +67,8 @@ class TrainOptions:
         gpu = list(map(int, self.opt.gpu.split(",")))
         self.opt.gpu = gpu
         if len(gpu) > 0:
-            torch.cuda.set_device(self.opt.gpu[0])
+            if torch.cuda.is_available():
+                torch.cuda.set_device(self.opt.gpu[0])
         if self.opt.load < 0:
             files = os.listdir(self.opt.checkpoint_dir)
             cps = []

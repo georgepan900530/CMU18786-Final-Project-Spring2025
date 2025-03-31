@@ -41,11 +41,13 @@ def get_mask(dg_img, img):
 
 
 def torch_variable(x, is_train):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     if is_train:
         return Variable(
             torch.from_numpy(np.array(x).transpose((0, 3, 1, 2))), requires_grad=True
-        ).cuda()
+        ).to(device)
     else:
         return Variable(
             torch.from_numpy(np.array(x).transpose((0, 3, 1, 2))), volatile=True
-        ).cuda()
+        ).to(device)

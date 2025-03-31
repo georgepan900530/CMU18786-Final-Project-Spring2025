@@ -31,7 +31,8 @@ class trainer:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # self.net_D = Discriminator().to(self.device)
         self.net_D = DCNDiscriminator().to(self.device)
-        self.net_G = Generator().to(self.device)
+        # self.net_G = Generator().to(self.device)
+        self.net_G = DCNGenerator().to(self.device)
         self.optim1 = torch.optim.Adam(
             filter(lambda p: p.requires_grad, self.net_G.parameters()),
             lr=opt.lr,
@@ -45,8 +46,8 @@ class trainer:
         self.start = opt.load
         self.iter = opt.iter
         self.batch_size = opt.batch_size
-        train_dataset = RainDataset(opt)
-        valid_dataset = RainDataset(opt, is_eval=True)
+        train_dataset = RainDataset("./dataset", is_eval=False)
+        valid_dataset = RainDataset("./dataset", is_eval=True)
         train_size = len(train_dataset)
         valid_size = len(valid_dataset)
         self.train_loader = DataLoader(
@@ -77,12 +78,14 @@ class trainer:
     def forward_process(self, I_, GT, is_train=True):
         M_ = []
         for i in range(I_.shape[0]):
-            M_.append(get_mask(np.array(I_[i]), np.array(GT[i])))
-        M_ = np.array(M_)
-
-        M_ = torch_variable(M_, is_train)
-        I_ = torch_variable(I_, is_train)
-        GT_ = torch_variable(GT, is_train)
+            I_img = I_[i].permute(1, 2, 0).cpu().numpy()
+            GT_img = GT[i].permute(1, 2, 0).cpu().numpy()
+            M_.append(get_mask(I_img, GT_img))
+        
+        # 将 mask 从 [B, H, W, 1] 转换为 [B, 1, H, W]
+        M_ = torch.from_numpy(np.array(M_)).permute(0, 3, 1, 2).float().to(self.device)
+        I_ = I_.to(self.device)
+        GT_ = GT.to(self.device)
 
         A_, t1, t2, t3 = self.net_G(I_)
         # print 'mask len', len(A_)
@@ -104,7 +107,7 @@ class trainer:
             # print('t3', t3.shape)
             # D(Fake)
 
-            D_map_O, D_fake = self.net_D(t3)
+            D_map_O, D_fake = self.net_D(t3.detach())
             # D(Real)
             # GT = torch_variable(GT,is_train, is_grad=True)
             D_map_R, D_real = self.net_D(GT_)
@@ -127,8 +130,6 @@ class trainer:
             loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL
 
             output = [loss_G, loss_D, loss_PL, loss_ML, loss_att, loss_MAP, loss]
-        else:  # validation
-            output = loss
 
         return output
 
@@ -165,18 +166,18 @@ class trainer:
                     print(
                         "count: "
                         + str(count)
-                        + " loss G: {:.4f}".format(float(loss_G.data[0]))
-                        + " loss_D: {:.4f}".format(float(loss_D.data[0]))
-                        + " loss_MSE: {:.4f}".format(MSE_loss.data[0])
+                        + " loss G: {:.4f}".format(loss_G.item())
+                        + " loss_D: {:.4f}".format(loss_D.item())
+                        + " loss_MSE: {:.4f}".format(MSE_loss.item())
                     )
                     print(
-                        "loss_PL:{:.4f}".format(float(loss_PL.data[0]))
-                        + " loss_ML:{:.4f}".format(float(loss_ML.data[0]))
-                        + " loss_Att:{:.4f}".format(float(loss_att.data[0]))
-                        + " loss_MAP:{:.4f}".format(float(loss_MAP.data[0]))
+                        "loss_PL:{:.4f}".format(loss_PL.item())
+                        + " loss_ML:{:.4f}".format(loss_ML.item())
+                        + " loss_Att:{:.4f}".format(loss_att.item())
+                        + " loss_MAP:{:.4f}".format(loss_MAP.item())
                     )
-                    writer.add_scalar("loss_G", float(loss_G.data[0]), count)
-                    writer.add_scalar("loss_D", float(loss_D.data[0]), count)
+                    writer.add_scalar("loss_G", loss_G.item(), count)
+                    writer.add_scalar("loss_D", loss_D.item(), count)
 
             step = 0
             for i, data in enumerate(self.valid_loader):
@@ -187,15 +188,9 @@ class trainer:
                     valid_loss_sum += self.forward_process(I_, GT_, is_train=False)
                 step += 1
 
-            print(
-                "epoch_"
-                + str(epoch)
-                + "valid_loss:{} ".format(valid_loss_sum.data[0] / step)
-                + "\n"
-            )
-            writer.add_scalar(
-                "validation_loss", float(valid_loss_sum.data[0]) / step, epoch
-            )
+            avg_valid = valid_loss_sum.item() / step
+            print("epoch_" + str(epoch) + " valid_loss: {:.4f}".format(avg_valid))
+            writer.add_scalar("validation_loss", avg_valid, epoch)
             valid_loss_sum = float(valid_loss_sum.data[0]) / step
             if before_loss / valid_loss_sum > 1.01:
                 before_loss = valid_loss_sum
