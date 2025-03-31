@@ -143,6 +143,7 @@ class Generator(nn.Module):
         x = self.output(x)
         return mask_list, frame1, frame2, x
 
+
 # DCN Generator
 # class DCNGenerator(nn.Module):
 #     def __init__(self):
@@ -265,31 +266,27 @@ class Generator(nn.Module):
 #         x = self.deconv2(x)
 #         x = x + res1
 
+
 #         x = self.out_final(x)
 #         return mask_list, frame1, frame2, x
-class DCNGenerator(nn.Module):
+class DSConvGenerator(nn.Module):
     def __init__(self):
-        super(DCNGenerator, self).__init__()
+        super(DSConvGenerator, self).__init__()
         self.det_conv0 = nn.Sequential(DSConv(4, 32, 3, 1, 1), nn.ReLU())
         self.det_conv1 = nn.Sequential(
-            DSConv(32, 32, 3, 1, 1), nn.ReLU(),
-            DSConv(32, 32, 3, 1, 1), nn.ReLU()
+            DSConv(32, 32, 3, 1, 1), nn.ReLU(), DSConv(32, 32, 3, 1, 1), nn.ReLU()
         )
         self.det_conv2 = nn.Sequential(
-            DSConv(32, 32, 3, 1, 1), nn.ReLU(),
-            DSConv(32, 32, 3, 1, 1), nn.ReLU()
+            DSConv(32, 32, 3, 1, 1), nn.ReLU(), DSConv(32, 32, 3, 1, 1), nn.ReLU()
         )
         self.det_conv3 = nn.Sequential(
-            DSConv(32, 32, 3, 1, 1), nn.ReLU(),
-            DSConv(32, 32, 3, 1, 1), nn.ReLU()
+            DSConv(32, 32, 3, 1, 1), nn.ReLU(), DSConv(32, 32, 3, 1, 1), nn.ReLU()
         )
         self.det_conv4 = nn.Sequential(
-            DSConv(32, 32, 3, 1, 1), nn.ReLU(),
-            DSConv(32, 32, 3, 1, 1), nn.ReLU()
+            DSConv(32, 32, 3, 1, 1), nn.ReLU(), DSConv(32, 32, 3, 1, 1), nn.ReLU()
         )
         self.det_conv5 = nn.Sequential(
-            DSConv(32, 32, 3, 1, 1), nn.ReLU(),
-            DSConv(32, 32, 3, 1, 1), nn.ReLU()
+            DSConv(32, 32, 3, 1, 1), nn.ReLU(), DSConv(32, 32, 3, 1, 1), nn.ReLU()
         )
 
         self.conv_i = nn.Sequential(nn.Conv2d(64, 32, 3, 1, 1), nn.Sigmoid())
@@ -305,10 +302,18 @@ class DCNGenerator(nn.Module):
         self.conv5 = nn.Sequential(DSConv(256, 256, 3, 1, 1), nn.ReLU())
         self.conv6 = nn.Sequential(DSConv(256, 256, 3, 1, 1), nn.ReLU())
 
-        self.diconv1 = nn.Sequential(nn.Conv2d(256, 256, 3, 1, 2, dilation=2), nn.ReLU())
-        self.diconv2 = nn.Sequential(nn.Conv2d(256, 256, 3, 1, 4, dilation=4), nn.ReLU())
-        self.diconv3 = nn.Sequential(nn.Conv2d(256, 256, 3, 1, 8, dilation=8), nn.ReLU())
-        self.diconv4 = nn.Sequential(nn.Conv2d(256, 256, 3, 1, 16, dilation=16), nn.ReLU())
+        self.diconv1 = nn.Sequential(
+            nn.Conv2d(256, 256, 3, 1, 2, dilation=2), nn.ReLU()
+        )
+        self.diconv2 = nn.Sequential(
+            nn.Conv2d(256, 256, 3, 1, 4, dilation=4), nn.ReLU()
+        )
+        self.diconv3 = nn.Sequential(
+            nn.Conv2d(256, 256, 3, 1, 8, dilation=8), nn.ReLU()
+        )
+        self.diconv4 = nn.Sequential(
+            nn.Conv2d(256, 256, 3, 1, 16, dilation=16), nn.ReLU()
+        )
 
         self.conv7 = nn.Sequential(DSConv(256, 256, 3, 1, 1), nn.ReLU())
         self.conv8 = nn.Sequential(DSConv(256, 256, 3, 1, 1), nn.ReLU())
@@ -317,7 +322,7 @@ class DCNGenerator(nn.Module):
             nn.ConvTranspose2d(256, 128, 4, 2, 1),
             nn.ReflectionPad2d((1, 0, 1, 0)),
             nn.AvgPool2d(2, stride=1),
-            nn.ReLU()
+            nn.ReLU(),
         )
 
         self.conv9 = nn.Sequential(DSConv(128, 64, 3, 1, 1), nn.ReLU())
@@ -325,7 +330,7 @@ class DCNGenerator(nn.Module):
             nn.ConvTranspose2d(64, 64, 4, 2, 1),
             nn.ReflectionPad2d((1, 0, 1, 0)),
             nn.AvgPool2d(2, stride=1),
-            nn.ReLU()
+            nn.ReLU(),
         )
         self.outframe1 = nn.Conv2d(256, 3, 3, 1, 1)
         self.outframe2 = nn.Conv2d(64, 3, 3, 1, 1)

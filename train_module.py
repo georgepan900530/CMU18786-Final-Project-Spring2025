@@ -22,6 +22,7 @@ from models import *
 from func import *
 from data.dataset_util import RainDataset
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from tensorboardX import SummaryWriter
 
@@ -30,9 +31,9 @@ class trainer:
     def __init__(self, opt):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # self.net_D = Discriminator().to(self.device)
-        self.net_D = DCNDiscriminator().to(self.device)
+        self.net_D = DSConvDiscriminator().to(self.device)
         # self.net_G = Generator().to(self.device)
-        self.net_G = DCNGenerator().to(self.device)
+        self.net_G = DSConvGenerator().to(self.device)
         self.optim1 = torch.optim.Adam(
             filter(lambda p: p.requires_grad, self.net_G.parameters()),
             lr=opt.lr,
@@ -81,7 +82,7 @@ class trainer:
             I_img = I_[i].permute(1, 2, 0).cpu().numpy()
             GT_img = GT[i].permute(1, 2, 0).cpu().numpy()
             M_.append(get_mask(I_img, GT_img))
-        
+
         # 将 mask 从 [B, H, W, 1] 转换为 [B, 1, H, W]
         M_ = torch.from_numpy(np.array(M_)).permute(0, 3, 1, 2).float().to(self.device)
         I_ = I_.to(self.device)

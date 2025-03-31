@@ -169,8 +169,23 @@ class RainDropMaskDecoder(nn.Module):
         patch_height, patch_width = pair(patch_size)
 
         # Calculate number of patches
+        assert (img_height % patch_height == 0) and (
+            img_width % patch_width == 0
+        ), "Image size must be divisible by patch size"
         self.num_patches = (img_height // patch_height) * (img_width // patch_width)
         self.patch_dim = (patch_height, patch_width)
+
+        self.pos_embedding = nn.Parameter(torch.randn(1, self.num_patches, embed_dim))
+        self.to_patch_embedding = nn.Sequential(
+            Rearrange(
+                "b c (h p1) (w p2) -> b (h w) (p1 p2 c)",
+                p1=patch_height,
+                p2=patch_width,
+            ),
+            nn.LayerNorm(self.patch_dim),
+            nn.Linear(self.patch_dim, embed_dim),
+            nn.LayerNorm(embed_dim),
+        )
 
         # Transformer for processing encoded features
         self.transformer = Transformer(
@@ -200,6 +215,8 @@ class RainDropMaskDecoder(nn.Module):
 
     def forward(self, x):
         # x shape: [batch_size, num_patches, embed_dim]
+        x = self.to_patch_embedding(x)
+        x += self.pos_embedding
         x = self.transformer(x)
         # Decode the transformer output to image space
         mask = self.decoder(x)
