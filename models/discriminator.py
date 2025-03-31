@@ -107,30 +107,22 @@ class DCNDiscriminator(nn.Module):
             nn.ReLU(),
         )
         self.conv4 = nn.Sequential(
-            DSConv(
-                in_channels=64, out_channels=128, kernel_size=5, stride=1, padding=2
-            ),
+            DSConv(in_channels=64, out_channels=128, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
         )
         self.conv5 = nn.Sequential(
-            DSConv(
-                in_channels=128, out_channels=128, kernel_size=5, stride=1, padding=2
-            ),
+            DSConv(in_channels=128, out_channels=128, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
         )
         self.conv6 = nn.Sequential(
-            DSConv(
-                in_channels=128, out_channels=128, kernel_size=5, stride=1, padding=2
-            ),
+            DSConv(in_channels=128, out_channels=128, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
         )
         self.conv_mask = nn.Sequential(
             DSConv(in_channels=128, out_channels=1, kernel_size=5, stride=1, padding=2)
         )
         self.conv7 = nn.Sequential(
-            DSConv(
-                in_channels=128, out_channels=64, kernel_size=5, stride=4, padding=1
-            ),
+            DSConv(in_channels=128, out_channels=64, kernel_size=5, stride=4, padding=1),
             nn.ReLU(),
         )
         self.conv8 = nn.Sequential(
@@ -151,5 +143,7 @@ class DCNDiscriminator(nn.Module):
         mask = self.conv_mask(x)
         x = self.conv7(x * mask)
         x = self.conv8(x)
+        # 添加自适应池化，将 x 调整为 (B, 32, 14, 14)
+        x = F.adaptive_avg_pool2d(x, (14, 14))
         x = x.view(x.size(0), -1)
         return mask, self.fc(x)
