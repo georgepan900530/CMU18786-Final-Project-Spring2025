@@ -128,3 +128,42 @@ class MultiHeadAttentionBlock(nn.Module):
         out = dot_product @ v
         out = out.transpose(1, 2).contiguous().view(B, N, D)
         return out
+
+
+class FeedForward(nn.Module):
+    def __init__(self, dim, hidden_dim, dropout=0.0):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.LayerNorm(dim),
+            nn.Linear(dim, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, dim),
+            nn.Dropout(dropout),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+class Transformer(nn.Module):
+    def __init__(self, dim, depth, heads, mlp_dim, dropout=0.0):
+        super().__init__()
+        self.norm = nn.LayerNorm(dim)
+        self.layers = nn.ModuleList([])
+        for _ in range(depth):
+            self.layers.append(
+                nn.ModuleList(
+                    [
+                        MultiHeadAttentionBlock(dim, num_heads=heads),
+                        FeedForward(dim, mlp_dim, dropout=dropout),
+                    ]
+                )
+            )
+
+    def forward(self, x):
+        for attn, ff in self.layers:
+            x = attn(x) + x
+            x = ff(x) + x
+
+        return self.norm(x)
