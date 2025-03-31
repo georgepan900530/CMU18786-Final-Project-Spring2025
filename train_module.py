@@ -166,18 +166,18 @@ class trainer:
                     print(
                         "count: "
                         + str(count)
-                        + " loss G: {:.4f}".format(float(loss_G.data[0]))
-                        + " loss_D: {:.4f}".format(float(loss_D.data[0]))
-                        + " loss_MSE: {:.4f}".format(MSE_loss.data[0])
+                        + " loss G: {:.4f}".format(loss_G.item())
+                        + " loss_D: {:.4f}".format(loss_D.item())
+                        + " loss_MSE: {:.4f}".format(MSE_loss.item())
                     )
                     print(
-                        "loss_PL:{:.4f}".format(float(loss_PL.data[0]))
-                        + " loss_ML:{:.4f}".format(float(loss_ML.data[0]))
-                        + " loss_Att:{:.4f}".format(float(loss_att.data[0]))
-                        + " loss_MAP:{:.4f}".format(float(loss_MAP.data[0]))
+                        "loss_PL:{:.4f}".format(loss_PL.item())
+                        + " loss_ML:{:.4f}".format(loss_ML.item())
+                        + " loss_Att:{:.4f}".format(loss_att.item())
+                        + " loss_MAP:{:.4f}".format(loss_MAP.item())
                     )
-                    writer.add_scalar("loss_G", float(loss_G.data[0]), count)
-                    writer.add_scalar("loss_D", float(loss_D.data[0]), count)
+                    writer.add_scalar("loss_G", loss_G.item(), count)
+                    writer.add_scalar("loss_D", loss_D.item(), count)
 
             step = 0
             for i, data in enumerate(self.valid_loader):
@@ -188,15 +188,9 @@ class trainer:
                     valid_loss_sum += self.forward_process(I_, GT_, is_train=False)
                 step += 1
 
-            print(
-                "epoch_"
-                + str(epoch)
-                + "valid_loss:{} ".format(valid_loss_sum.data[0] / step)
-                + "\n"
-            )
-            writer.add_scalar(
-                "validation_loss", float(valid_loss_sum.data[0]) / step, epoch
-            )
+            avg_valid = valid_loss_sum.item() / step
+            print("epoch_" + str(epoch) + " valid_loss: {:.4f}".format(avg_valid))
+            writer.add_scalar("validation_loss", avg_valid, epoch)
             valid_loss_sum = float(valid_loss_sum.data[0]) / step
             if before_loss / valid_loss_sum > 1.01:
                 before_loss = valid_loss_sum

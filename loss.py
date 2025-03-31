@@ -116,7 +116,6 @@ class MultiscaleLoss(nn.Module):
         # 定义各尺度的缩放比例（和生成器对应）
         scales = [0.25, 0.5, 1.0]
         T_ = []
-        # 利用 F.interpolate 生成下采样后的目标张量
         for scale in scales:
             T_.append(F.interpolate(gt, scale_factor=scale, mode='bilinear', align_corners=False))
         

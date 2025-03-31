@@ -341,15 +341,15 @@ class DCNGenerator(nn.Module):
         mask_list = []
 
         for iter_idx in range(ITERATION):
-            print(f"🔁 ITERATION {iter_idx}")
-            print("   input shape:", input.shape)
-            print("   mask  shape:", mask.shape)
-            try:
-                cat_x = torch.cat((input, mask), 1)
-                print("   cat   shape:", cat_x.shape)
-            except Exception as e:
-                print("   ❌ cat failed:", str(e))
-                raise
+            # print(f"🔁 ITERATION {iter_idx}")
+            # print("   input shape:", input.shape)
+            # print("   mask  shape:", mask.shape)
+            # try:
+            #     cat_x = torch.cat((input, mask), 1)
+            #     print("   cat   shape:", cat_x.shape)
+            # except Exception as e:
+            #     print("  cat failed:", str(e))
+            #     raise
             x = torch.cat((input, mask), 1)
             x = self.det_conv0(x)
             resx = x.clone()
@@ -374,12 +374,12 @@ class DCNGenerator(nn.Module):
 
         mask = mask_list[-1]
 
-        try:
-            cat_x = torch.cat((input, mask), 1)
-            print("cat  :", cat_x.shape)
-        except Exception as e:
-            print("❌ concat failed:", str(e))
-            raise
+        # try:
+        #     cat_x = torch.cat((input, mask), 1)
+        #     print("cat  :", cat_x.shape)
+        # except Exception as e:
+        #     print("❌ concat failed:", str(e))
+        #     raise
         x = torch.cat((input, mask), 1)
         x = self.conv1(x)
         res1 = x.clone()
