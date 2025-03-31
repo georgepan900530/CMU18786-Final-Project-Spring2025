@@ -91,9 +91,9 @@ class Discriminator(nn.Module):
 
 
 # DCN Discriminator
-class DCNDiscriminator(nn.Module):
+class DSConvDiscriminator(nn.Module):
     def __init__(self):
-        super(DCNDiscriminator, self).__init__()
+        super(DSConvDiscriminator, self).__init__()
         self.conv1 = nn.Sequential(
             DSConv(in_channels=3, out_channels=8, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
