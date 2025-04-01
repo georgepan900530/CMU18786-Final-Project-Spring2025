@@ -77,6 +77,11 @@ class trainer:
         self.out_path = "./weights/DSConv/"
 
     def forward_process(self, I_, GT, is_train=True):
+        # I_: input raindrop image
+        # A_: attention map(Mask_list) from ConvLSTM
+        # M_: mask GT
+        # O_: output image of the autoencoder
+        # T_: GT
         M_ = []
         for i in range(I_.shape[0]):
             I_img = I_[i].permute(1, 2, 0).cpu().numpy()
@@ -131,7 +136,42 @@ class trainer:
             loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL
 
             output = [loss_G, loss_D, loss_PL, loss_ML, loss_att, loss_MAP, loss]
+        else:
+            # attention_loss
+            loss_att = self.criterionAtt(A_, M_.detach())
 
+            # perceptual_loss O_: generation, T_: GT
+            loss_PL = self.criterionPL(O_, GT_.detach())
+
+            # Multiscale_loss
+            loss_ML = self.criterionML(S_, GT)
+
+            # print('t3', t3.shape)
+            # D(Fake)
+
+            D_map_O, D_fake = self.net_D(t3.detach())
+            # D(Real)
+            # GT = torch_variable(GT,is_train, is_grad=True)
+            D_map_R, D_real = self.net_D(GT_)
+
+            loss_MAP = self.criterionMAP(D_map_O, D_map_R, A_[-1].detach())
+            # 1 - D_real
+            # 0 - D_fake
+            # loss_GAN_fake = self.criterionGAN(D_fake,is_real=False)
+            # loss_GAN_real = self.criterionGAN(D_real,is_real=True)
+            # loss_gen_D = torch.log(1.0-loss_GAN_fake)
+            loss_fake = self.criterionGAN(
+                D_fake, is_real=False
+            )  # BCE 1, D_fake -(log(1-fake))
+            loss_real = self.criterionGAN(
+                D_real, is_real=True
+            )  # BCE 0, D_real -log(real)
+            # D_real, 1
+            loss_D = loss_real + loss_fake + loss_MAP
+            # print (loss_gen_D), (loss_att), (loss_ML), (loss_PL)
+            loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL
+
+            output = loss_G
         return output
 
     def train_start(self):
@@ -145,7 +185,9 @@ class trainer:
         writer = SummaryWriter()
         count = 0
         before_loss = 10000000
-        for epoch in tqdm(range(self.start, self.iter + 1)):
+        for epoch in range(self.start, self.iter + 1):
+            self.net_G.train()
+            self.net_D.train()
             for i, data in enumerate(self.train_loader):
                 count += 1
                 I_, GT_ = data
@@ -179,20 +221,24 @@ class trainer:
                     )
                     writer.add_scalar("loss_G", loss_G.item(), count)
                     writer.add_scalar("loss_D", loss_D.item(), count)
-
+                    
+            
             step = 0
-            for i, data in enumerate(self.valid_loader):
-                I_, GT_ = data
-                if i == 0:
-                    valid_loss_sum = self.forward_process(I_, GT_, is_train=False)
-                else:
-                    valid_loss_sum += self.forward_process(I_, GT_, is_train=False)
-                step += 1
+            self.net_G.eval()
+            self.net_D.eval()
+            with torch.no_grad():
+                for i, data in enumerate(self.valid_loader):
+                    I_, GT_ = data
+                    if i == 0:
+                        valid_loss_sum = self.forward_process(I_, GT_, is_train=False)
+                    else:
+                        valid_loss_sum += self.forward_process(I_, GT_, is_train=False)
+                    step += 1
 
             avg_valid = valid_loss_sum.item() / step
             print("epoch_" + str(epoch) + " valid_loss: {:.4f}".format(avg_valid))
             writer.add_scalar("validation_loss", avg_valid, epoch)
-            valid_loss_sum = float(valid_loss_sum.data[0]) / step
+            valid_loss_sum = valid_loss_sum.item() / step
             if before_loss / valid_loss_sum > 1.01:
                 before_loss = valid_loss_sum
                 print("save model " + "!" * 10)
