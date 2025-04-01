@@ -93,13 +93,13 @@ if __name__ == "__main__":
     #     nn.ReLU(),
     #     nn.Linear(1000, 10),
     # )
-    discriminator = Discriminator()
-    generator = Generator()
-    # dsconvdiscriminator = DSConvDiscriminator()
-    # dsconvgenerator = DSConvGenerator()
+    # discriminator = Discriminator()
+    # generator = Generator()
+    dsconvdiscriminator = DSConvDiscriminator()
+    dsconvgenerator = DSConvGenerator()
 
     print("Discriminator")
-    print_model_efficiency(discriminator)
+    print_model_efficiency(dsconvdiscriminator)
     print("-" * 100)
     print("Generator")
-    print_model_efficiency(generator)
+    print_model_efficiency(dsconvgenerator)
