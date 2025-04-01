@@ -99,37 +99,81 @@ class PerceptualLoss(nn.Module):
         return loss_PL
 
 
+# class MultiscaleLoss(nn.Module):
+#     def __init__(self, ld=[0.6, 0.8, 1.0], batch=1):
+#         super(MultiscaleLoss, self).__init__()
+#         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#         self.loss = nn.MSELoss()  # 不需要额外调用 .cuda()，后面会用 .to(self.device)
+#         self.loss = nn.MSELoss().to(self.device)
+#         self.ld = ld
+#         self.batch = batch
+
+#     def forward(self, S_, gt):
+#         """
+#         S_ : list of generator outputs at different scales, e.g.,
+#              S_[0]: [B, 3, H_small, W_small]
+#              S_[1]: [B, 3, H_mid,   W_mid]
+#              S_[2]: [B, 3, H_orig,  W_orig]
+#         gt : ground truth tensor, shape [B, 3, H, W]
+#         """
+#         # 定义各尺度的缩放比例（和生成器对应）
+#         scales = [0.25, 0.5, 1.0]
+#         T_ = []
+#         for scale in scales:
+#             T_.append(
+#                 F.interpolate(
+#                     gt, scale_factor=scale, mode="bilinear", align_corners=False
+#                 )
+#             )
+
+#         loss_ML = 0.0
+#         for i in range(len(self.ld)):
+#             loss_ML += self.ld[i] * self.loss(S_[i], T_[i].to(self.device))
+#         return loss_ML
+
 class MultiscaleLoss(nn.Module):
-    def __init__(self, ld=[0.6, 0.8, 1.0], batch=1):
+    def __init__(self, ld=[0.6,0.8,1.0],batch=1):
         super(MultiscaleLoss, self).__init__()
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.loss = nn.MSELoss()  # 不需要额外调用 .cuda()，后面会用 .to(self.device)
-        self.loss = nn.MSELoss().to(self.device)
+        self.loss = nn.MSELoss().cuda()
         self.ld = ld
-        self.batch = batch
-
-    def forward(self, S_, gt):
-        """
-        S_ : list of generator outputs at different scales, e.g.,
-             S_[0]: [B, 3, H_small, W_small]
-             S_[1]: [B, 3, H_mid,   W_mid]
-             S_[2]: [B, 3, H_orig,  W_orig]
-        gt : ground truth tensor, shape [B, 3, H, W]
-        """
-        # 定义各尺度的缩放比例（和生成器对应）
-        scales = [0.25, 0.5, 1.0]
+        self.batch=batch
+    def __call__(self, S_, gt):
+        #1,128,256,3
         T_ = []
-        for scale in scales:
-            T_.append(
-                F.interpolate(
-                    gt, scale_factor=scale, mode="bilinear", align_corners=False
-                )
-            )
-
-        loss_ML = 0.0
+        # print S_[0].shape[0]
+        for i in range(S_[0].shape[0]):
+            temp = []
+            x = (np.array(gt[i])*255.).astype(np.uint8)
+            # print (x.shape, x.dtype)
+            t = cv2.resize(x, None, fx=1.0/4.0,fy=1.0/4.0, interpolation=cv2.INTER_AREA)
+            t = np.expand_dims((t/255.).astype(np.float32).transpose(2,0,1),axis=0)
+            temp.append(t)
+            t = cv2.resize(x, None, fx=1.0/2.0,fy=1.0/2.0, interpolation=cv2.INTER_AREA)
+            t = np.expand_dims((t/255.).astype(np.float32).transpose(2,0,1),axis=0)
+            temp.append(t)
+            x = np.expand_dims((x/255.).astype(np.float32).transpose(2,0,1),axis=0)
+            temp.append(x)
+            T_.append(temp)
+        temp_T = []
         for i in range(len(self.ld)):
-            loss_ML += self.ld[i] * self.loss(S_[i], T_[i].to(self.device))
-        return loss_ML
+            # if self.batch == 1:
+            #     temp_T.append(Variable(torch.from_numpy(T_[0][i])).cuda())
+            # else:
+            for j in range((S_[0].shape[0])):
+                if j == 0:
+                    x = T_[j][i]
+                else:
+                    x = np.concatenate((x, T_[j][i]), axis=0)
+            temp_T.append(Variable(torch.from_numpy(x)).cuda())
+        T_ = temp_T
+        loss_ML = None
+        for i in range(len(self.ld)):
+            if i == 0: 
+                loss_ML = self.ld[i] * self.loss(S_[i], T_[i])
+            else:
+                loss_ML += self.ld[i] * self.loss(S_[i], T_[i])
+        
+        return loss_ML/float(S_[0].shape[0])
 
 
 class MAPLoss(nn.Module):

@@ -156,7 +156,7 @@ class DSConvDiscriminator(nn.Module):
         x = self.conv8(x)
         # 添加自适应池化，将 x 调整为 (B, 32, 14, 14)
         # x = F.adaptive_avg_pool2d(x, (14, 14))
-        x = x.view(x.size(0), -1)
+        x = x.contiguous().view(x.size(0), -1)
         return mask, self.fc(x)
 
 
