@@ -89,7 +89,7 @@ class Discriminator(nn.Module):
         mask = self.conv_mask(x)
         x = self.conv7(x * mask)
         x = self.conv8(x)
-        x = x.view(x.size(0), -1)
+        x = x.reshape(x.size(0), -1)
         return mask, self.fc(x)
 
 
