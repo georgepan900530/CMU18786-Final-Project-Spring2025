@@ -12,6 +12,7 @@ import cv2
 import random
 import time
 import os
+from func import *
 
 # Custom modules
 try:
@@ -299,8 +300,7 @@ class DSConvGenerator(nn.Module):
         # x = self.out_final(x)
         return mask_list, frame1, frame2, x
 
-
-# class DSConvGenerator(nn.Module):
+    # class DSConvGenerator(nn.Module):
     def __init__(self):
         super(DSConvGenerator, self).__init__()
         self.det_conv0 = nn.Sequential(DSConv(4, 32, 3, 1, 1), nn.ReLU())
@@ -442,8 +442,8 @@ class DSConvGenerator(nn.Module):
         x = x.clone()
         x = self.out_final(x)
         return mask_list, frame1, frame2, x
-    
-    
+
+
 if __name__ == "__main__":
     dsconv_generator = DSConvGenerator()
     net = Generator()

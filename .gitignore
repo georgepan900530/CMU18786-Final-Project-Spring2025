@@ -6,3 +6,4 @@ options/__pycache__
 runs/
 weights/
 *.jpg
+*.png

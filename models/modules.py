@@ -4,6 +4,24 @@ import torch.nn.functional as F
 import numpy as np
 from einops.layers.torch import Rearrange
 from einops import rearrange, repeat
+import matplotlib.pyplot as plt
+import matplotlib.pylab as pylab
+
+
+def get_heatmap(mask):
+    lum_img = np.maximum(
+        np.maximum(
+            mask[:, :, 0],
+            mask[:, :, 1],
+        ),
+        mask[:, :, 2],
+    )
+    imgplot = plt.imshow(lum_img)
+    imgplot.set_cmap("jet")
+    plt.colorbar()
+    plt.axis("off")
+    pylab.show()
+    return
 
 
 class DSConv(nn.Module):
@@ -162,8 +180,9 @@ class RainDropMaskDecoder(nn.Module):
         depth,
         mlp_dim,
         dropout=0.0,
-        img_size=(480, 320),
+        img_size=(224, 224),
         patch_size=16,
+        channels=3,
     ):
         super(RainDropMaskDecoder, self).__init__()
 
@@ -176,7 +195,7 @@ class RainDropMaskDecoder(nn.Module):
             img_width % patch_width == 0
         ), "Image size must be divisible by patch size"
         self.num_patches = (img_height // patch_height) * (img_width // patch_width)
-        self.patch_dim = (patch_height, patch_width)
+        self.patch_dim = channels * patch_height * patch_width
 
         self.pos_embedding = nn.Parameter(torch.randn(1, self.num_patches, embed_dim))
         self.to_patch_embedding = nn.Sequential(
@@ -224,3 +243,55 @@ class RainDropMaskDecoder(nn.Module):
         # Decode the transformer output to image space
         mask = self.decoder(x)
         return mask
+
+
+def plot_raindrop_mask(mask, save_path=None, show=False):
+    """
+    Plot a heatmap visualization of the raindrop mask.
+
+    Parameters:
+    -----------
+    mask : torch.Tensor or numpy.ndarray
+        The raindrop mask with shape (1, H, W) or (H, W)
+    save_path : str, optional
+        Path to save the visualization. If None, the image is not saved.
+    show : bool, default=True
+        Whether to display the plot
+    """
+    # Convert to numpy if it's a torch tensor
+    if isinstance(mask, torch.Tensor):
+        mask = mask.detach().cpu().numpy()
+
+    # Squeeze the channel dimension if it exists
+    if mask.shape[0] == 1:
+        mask = mask.squeeze(0)
+
+    # Create figure
+    plt.figure(figsize=(10, 8))
+
+    # Plot heatmap
+    im = plt.imshow(mask, cmap="jet")
+    plt.colorbar(im, label="Mask Intensity")
+    plt.title("Raindrop Mask Heatmap")
+    plt.axis("off")
+
+    # Save if path is provided
+    if save_path is not None:
+        plt.savefig(save_path, bbox_inches="tight", dpi=300)
+
+    # Show or close
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+if __name__ == "__main__":
+    rain_drop_mask_decoder = RainDropMaskDecoder(
+        embed_dim=1024, num_heads=8, depth=12, mlp_dim=4096, dropout=0.0
+    )
+    input = torch.randn(1, 3, 224, 224)
+    mask = rain_drop_mask_decoder(input)
+    print(mask.shape)
+    mask = mask[0].detach().cpu().numpy()
+    plot_raindrop_mask(mask, save_path="raindrop_mask.png")
