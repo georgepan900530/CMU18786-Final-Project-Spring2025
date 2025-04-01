@@ -52,9 +52,9 @@ class trainer:
         train_size = len(train_dataset)
         valid_size = len(valid_dataset)
         self.train_loader = DataLoader(
-            train_dataset, batch_size=opt.batch_size, shuffle=True
+            train_dataset, batch_size=opt.batch_size, shuffle=True, num_workers=2, pin_memory=True
         )
-        self.valid_loader = DataLoader(valid_dataset, batch_size=opt.batch_size)
+        self.valid_loader = DataLoader(valid_dataset, batch_size=opt.batch_size, num_workers=2, pin_memory=True)
 
         print("# train set : {}".format(train_size))
         print("# eval set : {}".format(valid_size))
@@ -207,7 +207,9 @@ class trainer:
 
                 if count % 20 == 0:
                     print(
-                        "count: "
+                        "epoch: "
+                        + str(epoch)
+                        + " count: "
                         + str(count)
                         + " loss G: {:.4f}".format(loss_G.item())
                         + " loss_D: {:.4f}".format(loss_D.item())
