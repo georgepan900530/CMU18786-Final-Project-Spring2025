@@ -48,6 +48,8 @@ def torch_variable(x, is_train):
             torch.from_numpy(np.array(x).transpose((0, 3, 1, 2))), requires_grad=True
         ).to(device)
     else:
-        return Variable(
-            torch.from_numpy(np.array(x).transpose((0, 3, 1, 2))), volatile=True
-        ).to(device)
+        # Replace volatile=True with torch.no_grad()
+        with torch.no_grad():
+            return Variable(
+                torch.from_numpy(np.array(x).transpose((0, 3, 1, 2)))
+            ).to(device)
