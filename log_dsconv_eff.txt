@@ -5,7 +5,7 @@ Trainable parameters: 6,494,992
 [INFO] Register zero_ops() for <class 'torch.nn.modules.container.Sequential'>.
 [INFO] Register count_linear() for <class 'torch.nn.modules.linear.Linear'>.
 FLOPs (thop): 2,759,342,336.0
-FLOPs (fvcore): 2,759,348,608
+FLOPs (fvcore): 2,759,342,336
 
 Detailed Model Summary:
 ==========================================================================================
@@ -420,6 +420,3 @@ Forward/backward pass size (MB): 1510.87
 Params size (MB): 13.57
 Estimated Total Size (MB): 1525.05
 ==========================================================================================
-
-
-test_a: PSNR is 25.0950 and SSIM is 0.8618 and LPIPS is 0.1490
