@@ -62,7 +62,7 @@ def predict(image):
 if __name__ == "__main__":
     args = get_args()
 
-    model = Generator().cuda()
+    model = DSConvGenerator().cuda()
     model.load_state_dict(torch.load(args.ckpt_path))
     model.eval()
     if not os.path.exists(args.output_dir):
@@ -78,7 +78,8 @@ if __name__ == "__main__":
             img = align_to_four(img)
             result = predict(img)
             img_name = input_list[i].split(".")[0]
-            cv2.imwrite(args.output_dir + img_name + ".jpg", result)
+            path = os.path.join(args.output_dir, img_name + ".jpg")
+            cv2.imwrite(path, result)
 
     elif args.mode == "test":
         input_list = sorted(os.listdir(args.input_dir))
