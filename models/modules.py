@@ -27,7 +27,9 @@ class DSConv(nn.Module):
         Padding of the depthwise convolution
     """
 
-    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0):
+    def __init__(
+        self, in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1
+    ):
         super(DSConv, self).__init__()
         self.depthwise = nn.Conv2d(
             in_channels,
@@ -35,6 +37,7 @@ class DSConv(nn.Module):
             kernel_size=kernel_size,
             stride=stride,
             padding=padding,
+            dilation=dilation,
             groups=in_channels,
         )
         self.pointwise = nn.Conv2d(in_channels, out_channels, kernel_size=1)
