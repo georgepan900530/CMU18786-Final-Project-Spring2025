@@ -62,7 +62,8 @@ def predict(image):
 if __name__ == "__main__":
     args = get_args()
 
-    model = DSConvGenerator().cuda()
+    # model = DSConvGenerator().cuda()
+    model = Generator().cuda()
     model.load_state_dict(torch.load(args.ckpt_path))
     model.eval()
     if not os.path.exists(args.output_dir):

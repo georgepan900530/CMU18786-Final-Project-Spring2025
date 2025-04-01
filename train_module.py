@@ -30,10 +30,10 @@ from tensorboardX import SummaryWriter
 class trainer:
     def __init__(self, opt):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # self.net_D = Discriminator().to(self.device)
-        self.net_D = DSConvDiscriminator().to(self.device)
-        # self.net_G = Generator().to(self.device)
-        self.net_G = DSConvGenerator().to(self.device)
+        self.net_D = Discriminator().to(self.device)
+        # self.net_D = DSConvDiscriminator().to(self.device)
+        self.net_G = Generator().to(self.device)
+        # self.net_G = DSConvGenerator().to(self.device)
         self.optim1 = torch.optim.Adam(
             filter(lambda p: p.requires_grad, self.net_G.parameters()),
             lr=opt.lr,
