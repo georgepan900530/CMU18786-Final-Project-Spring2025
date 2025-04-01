@@ -420,3 +420,6 @@ Forward/backward pass size (MB): 1510.87
 Params size (MB): 13.57
 Estimated Total Size (MB): 1525.05
 ==========================================================================================
+
+
+test_a: PSNR is 25.0950 and SSIM is 0.8618 and LPIPS is 0.1490
