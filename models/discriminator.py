@@ -5,7 +5,7 @@ from torch.autograd import Variable
 import torch.utils.data as Data
 import torch.nn.functional as F
 import torchvision
-from .modules import DSConv
+from modules import DSConv
 
 # Tools lib
 import numpy as np
@@ -90,7 +90,7 @@ class Discriminator(nn.Module):
         return mask, self.fc(x)
 
 
-# DCN Discriminator
+# DSConv Discriminator
 class DSConvDiscriminator(nn.Module):
     def __init__(self):
         super(DSConvDiscriminator, self).__init__()
@@ -107,22 +107,30 @@ class DSConvDiscriminator(nn.Module):
             nn.ReLU(),
         )
         self.conv4 = nn.Sequential(
-            DSConv(in_channels=64, out_channels=128, kernel_size=5, stride=1, padding=2),
+            DSConv(
+                in_channels=64, out_channels=128, kernel_size=5, stride=1, padding=2
+            ),
             nn.ReLU(),
         )
         self.conv5 = nn.Sequential(
-            DSConv(in_channels=128, out_channels=128, kernel_size=5, stride=1, padding=2),
+            DSConv(
+                in_channels=128, out_channels=128, kernel_size=5, stride=1, padding=2
+            ),
             nn.ReLU(),
         )
         self.conv6 = nn.Sequential(
-            DSConv(in_channels=128, out_channels=128, kernel_size=5, stride=1, padding=2),
+            DSConv(
+                in_channels=128, out_channels=128, kernel_size=5, stride=1, padding=2
+            ),
             nn.ReLU(),
         )
         self.conv_mask = nn.Sequential(
             DSConv(in_channels=128, out_channels=1, kernel_size=5, stride=1, padding=2)
         )
         self.conv7 = nn.Sequential(
-            DSConv(in_channels=128, out_channels=64, kernel_size=5, stride=4, padding=1),
+            DSConv(
+                in_channels=128, out_channels=64, kernel_size=5, stride=4, padding=1
+            ),
             nn.ReLU(),
         )
         self.conv8 = nn.Sequential(
@@ -144,6 +152,15 @@ class DSConvDiscriminator(nn.Module):
         x = self.conv7(x * mask)
         x = self.conv8(x)
         # 添加自适应池化，将 x 调整为 (B, 32, 14, 14)
-        x = F.adaptive_avg_pool2d(x, (14, 14))
+        # x = F.adaptive_avg_pool2d(x, (14, 14))
         x = x.view(x.size(0), -1)
         return mask, self.fc(x)
+
+
+if __name__ == "__main__":
+    dsconvnet = DSConvDiscriminator()
+    net = Discriminator()
+    x = torch.randn(1, 3, 224, 224)
+    mask, out = net(x)
+    print(mask.shape, out.shape)
+    mask, out = dsconvnet(x)
