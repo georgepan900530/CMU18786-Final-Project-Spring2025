@@ -29,8 +29,7 @@ def plot_raindrop_mask(mask, save_path=None, show=False):
         mask = mask.detach().cpu().numpy()
 
     # Squeeze the channel dimension if it exists
-    if mask.shape[0] == 1:
-        mask = mask.squeeze(0)
+    mask = mask.squeeze()
 
     # Create figure
     plt.figure(figsize=(10, 8))

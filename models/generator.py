@@ -5,6 +5,7 @@ from torch.autograd import Variable
 import torch.utils.data as Data
 import torch.nn.functional as F
 import torchvision
+import matplotlib.pyplot as plt
 
 # Tools lib
 import numpy as np
@@ -12,7 +13,6 @@ import cv2
 import random
 import time
 import os
-from func import *
 
 # Custom modules
 try:
@@ -538,10 +538,18 @@ class GeneratorWithTransformer(nn.Module):
         return mask, frame1, frame2, x
 
 if __name__ == "__main__":
-    dsconv_generator = DSConvGenerator()
-    net = Generator()
-    input = torch.randn(1, 3, 224, 224)
-    mask_list, frame1, frame2, x = net(input)
-    print(mask_list[0].shape, frame1.shape, frame2.shape, x.shape)
-    mask_list, frame1, frame2, x = dsconv_generator(input)
-    print(mask_list[0].shape, frame1.shape, frame2.shape, x.shape)
+    # dsconv_generator = DSConvGenerator()
+    # net = Generator()
+    # input = torch.randn(1, 3, 224, 224)
+    # mask_list, frame1, frame2, x = net(input)
+    # print(mask_list[0].shape, frame1.shape, frame2.shape, x.shape)
+    # mask_list, frame1, frame2, x = dsconv_generator(input)
+    # print(mask_list[0].shape, frame1.shape, frame2.shape, x.shape)
+    generator = GeneratorWithTransformer()
+    img_path = "/mnt/project/CMU18786-Final-Project-Spring2025/dataset/train/data/1_rain.png"
+    input = cv2.imread(img_path)
+    input = cv2.resize(input, (224, 224))
+    input = torch.from_numpy(input).permute(2, 0, 1).unsqueeze(0).float() / 255.0
+    mask, frame1, frame2, x = generator(input)
+    print(mask.shape, frame1.shape, frame2.shape, x.shape)
+    plot_raindrop_mask(mask, save_path="raindrop_mask.png", show=True)
