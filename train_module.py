@@ -169,7 +169,6 @@ class trainer:
         writer = SummaryWriter()
         count = 0
         before_loss = 10000000
-        self.start = 81
         for epoch in range(self.start, self.iter + 1):
             self.net_G.train()
             self.net_D.train()
