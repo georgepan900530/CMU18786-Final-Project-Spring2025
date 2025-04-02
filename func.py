@@ -95,15 +95,22 @@ def get_heatmap2(mask, original_img=None, save_path=None, alpha=0.6):
     ax = plt.Axes(fig, [0., 0., 1., 1.])
     ax.set_axis_off()
     fig.add_axes(ax)
-    
+
     # If original image is provided, show it first
     if original_img is not None:
-        ax.imshow(original_img)
-        # Overlay heatmap with transparency
-        heatmap = ax.imshow(lum_img, cmap="jet", alpha=alpha)
+        if alpha < 1.0:
+            plt.imshow(original_img)
+            # Overlay heatmap with transparency
+            imgplot = plt.imshow(lum_img, cmap="jet", alpha=alpha)
+        else:
+            # Create a blended visualization
+            imgplot = plt.imshow(lum_img, cmap="jet")
     else:
         # Just show the heatmap
-        heatmap = ax.imshow(lum_img, cmap="jet")
+        imgplot = plt.imshow(lum_img, cmap="jet")
+        
+    # Add colorbar
+    plt.colorbar(imgplot)
     
     # Save if path is provided
     if save_path is not None:
