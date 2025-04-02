@@ -34,9 +34,12 @@ class trainer:
         self.net_D = DSConvDiscriminator().to(self.device)
         # self.net_G = Generator().to(self.device)
         self.net_G = DSConvGenerator().to(self.device)
-        self.net_G.load_state_dict(torch.load("./weights/DSConv/G_epoch:81_loss:0.0017368149911535197.pth"))
-        self.net_D.load_state_dict(torch.load("./weights/DSConv/D_epoch:81_loss:0.0017368149911535197.pth"))
-        print("Successfully load the model")
+        if opt.load != -1:
+            G_ckpt = os.path.join(opt.checkpoint_dir, f"G_epoch:{opt.load}_loss:0.0017368149911535197.pth")
+            D_ckpt = os.path.join(opt.checkpoint_dir, f"D_epoch:{opt.load}_loss:0.0017368149911535197.pth")
+            self.net_G.load_state_dict(torch.load(G_ckpt))
+            self.net_D.load_state_dict(torch.load(D_ckpt))
+            print("Successfully load the model")
         self.optim1 = torch.optim.Adam(
             filter(lambda p: p.requires_grad, self.net_G.parameters()),
             lr=opt.lr,
@@ -228,10 +231,10 @@ class trainer:
                 print("save model " + "!" * 10)
                 if not os.path.exists(self.out_path):
                     os.system("mkdir -p {}".format(self.out_path))
-                w_name = "G_epoch:{}_loss:{}.pth".format(epoch, valid_loss_sum)
+                w_name = "G_epoch:{}.pth".format(epoch)
                 save_path = os.path.join(self.out_path, w_name)
                 torch.save(self.net_G.state_dict(), save_path)
-                w_name = "D_epoch:{}_loss:{}.pth".format(epoch, valid_loss_sum)
+                w_name = "D_epoch:{}.pth".format(epoch)
                 save_path = os.path.join(self.out_path, w_name)
                 torch.save(self.net_D.state_dict(), save_path)
             valid_loss_sum = 0.0
