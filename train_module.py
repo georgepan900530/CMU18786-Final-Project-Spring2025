@@ -82,7 +82,7 @@ class trainer:
         # MSE Loss
         self.criterionMSE = nn.MSELoss().to(self.device)
 
-        self.out_path = "./weights/DSConv/"
+        self.out_path = opt.checkpoint_dir
 
     def forward_process(self, I_, GT, is_train=True):
         # I_: input raindrop image
