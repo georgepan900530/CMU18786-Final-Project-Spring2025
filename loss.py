@@ -33,6 +33,95 @@ class GANLoss(nn.Module):
 
     def __call__(self, input, is_real):
         return self.loss(input, self.convert_tensor(input, is_real))
+    
+class AdvancedGANLoss(nn.Module):
+    """Advanced GAN loss implementation with label smoothing, noise injection, and multiple loss functions.
+    
+    Features:
+    - Label smoothing for more stable training
+    - Optional noise injection to prevent discriminator overconfidence
+    - Support for multiple loss functions (BCE, MSE, hinge, wasserstein)
+    - Device-agnostic implementation
+    """
+    def __init__(self, mode='bce', label_smoothing=0.1, noise_std=0.05, use_noise=True):
+        """
+        Args:
+            mode (str): Loss function to use - 'bce', 'mse', 'hinge', or 'wasserstein'
+            label_smoothing (float): Amount of label smoothing (0.0 to 0.5)
+            noise_std (float): Standard deviation of noise added to labels
+            use_noise (bool): Whether to use noise injection
+        """
+        super(GANLoss, self).__init__()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.mode = mode.lower()
+        self.label_smoothing = label_smoothing
+        self.noise_std = noise_std
+        self.use_noise = use_noise
+        
+        # Real and fake labels with smoothing
+        self.real_label = 1.0 - label_smoothing
+        self.fake_label = 0.0 + label_smoothing
+        
+        # Register buffers for the label tensors
+        self.register_buffer('real_tensor', torch.FloatTensor(1).fill_(self.real_label))
+        self.register_buffer('fake_tensor', torch.FloatTensor(1).fill_(self.fake_label))
+        
+        # Set up the appropriate loss function
+        if self.mode == 'bce':
+            self.loss = nn.BCEWithLogitsLoss() if mode == 'bce_logits' else nn.BCELoss()
+        elif self.mode == 'mse':
+            self.loss = nn.MSELoss()
+        elif self.mode in ['hinge', 'wasserstein']:
+            # For hinge and wasserstein, we'll implement custom loss calculations
+            self.loss = None
+        else:
+            raise ValueError(f"Unsupported loss mode: {mode}")
+            
+    def get_target_tensor(self, input, is_real):
+        """Generate target tensors with optional noise injection."""
+        if is_real:
+            target = self.real_tensor.expand_as(input)
+        else:
+            target = self.fake_tensor.expand_as(input)
+            
+        # Add noise to labels if enabled
+        if self.use_noise and self.training:
+            noise = torch.randn_like(target) * self.noise_std
+            # Clamp to ensure we stay in valid probability range for BCE
+            if self.mode == 'bce':
+                target = torch.clamp(target + noise, min=0.0, max=1.0)
+            else:
+                target = target + noise
+                
+        return target
+    
+    def __call__(self, input, is_real):
+        """Calculate loss based on discriminator predictions and whether they should be real/fake.
+        
+        Args:
+            input: Output from the discriminator
+            is_real: Whether the input should be classified as real (True) or fake (False)
+        """
+        # For wasserstein loss
+        if self.mode == 'wasserstein':
+            return -torch.mean(input) if is_real else torch.mean(input)
+            
+        # For hinge loss
+        elif self.mode == 'hinge':
+            if is_real:
+                return torch.mean(F.relu(1.0 - input))
+            else:
+                return torch.mean(F.relu(1.0 + input))
+                
+        # For BCE and MSE losses
+        else:
+            target_tensor = self.get_target_tensor(input, is_real)
+            return self.loss(input, target_tensor)
+            
+    def train(self, mode=True):
+        """Override train method to ensure proper behavior during eval."""
+        super(GANLoss, self).train(mode)
+        return self
 
 
 class AttentionLoss(nn.Module):

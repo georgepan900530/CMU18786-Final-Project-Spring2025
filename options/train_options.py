@@ -105,9 +105,9 @@ class TrainOptions():
 		self.parser.add_argument('--train_dataset', type=str, default='./dataset/train', help='path to training dataset')
 		self.parser.add_argument('--eval_dataset', type=str, default='./dataset/test_a', help='path to evaluation dataset')
 		self.parser.add_argument('--test_dataset', type=str, default='./dataset/test_b', help='path to test dataset')
-		self.parser.add_argument('--lr', type=float, default=0.0005, help='learning rate')
+		self.parser.add_argument('--lr', type=float, default=0.002, help='learning rate')
 		self.parser.add_argument('--iter', type=int, default=200, help='number of iterations')
-		self.parser.add_argument('--batch_size', type=int, default=2, help='batch size')
+		self.parser.add_argument('--batch_size', type=int, default=4, help='batch size')
 
 	def parse(self):
 		if not self.initialized:
