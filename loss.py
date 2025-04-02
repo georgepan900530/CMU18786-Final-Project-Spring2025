@@ -146,9 +146,8 @@ class AttentionLoss(nn.Module):
         return loss_ATT
     
 class AttentionLossWithTransformer(nn.Module):
-    def __init__(self, theta=0.8):
+    def __init__(self):
         super(AttentionLossWithTransformer, self).__init__()
-        self.theta = theta
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.loss = nn.MSELoss().to(self.device)
         

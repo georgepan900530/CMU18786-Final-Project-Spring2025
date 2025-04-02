@@ -77,7 +77,10 @@ class trainer:
         self.expr_dir = opt.checkpoint_dir
 
         # Attention Loss
-        self.criterionAtt = AttentionLoss(theta=0.8, iteration=4)
+        if opt.model_type != 'transformer':
+            self.criterionAtt = AttentionLossWithTransformer()
+        else:
+            self.criterionAtt = AttentionLoss(theta=0.8, iteration=4)
         # GAN Loss
         self.criterionGAN = GANLoss(real_label=1.0, fake_label=0.0)
         # Perceptual Loss
@@ -110,6 +113,7 @@ class trainer:
         # M_ = torch.from_numpy(np.array(M_)).permute(0, 3, 1, 2).float().to(self.device)
         # I_ = I_.to(self.device)
         # GT_ = GT.to(self.device)
+        
         
         M_ = []
         for i in range(I_.shape[0]):
