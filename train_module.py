@@ -30,23 +30,30 @@ from tensorboardX import SummaryWriter
 class trainer:
     def __init__(self, opt):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # self.net_D = Discriminator().to(self.device)
-        self.net_D = DSConvDiscriminator().to(self.device)
-        # self.net_G = Generator().to(self.device)
-        self.net_G = DSConvGenerator().to(self.device)
+        if opt.model_type == 'baseline':
+            self.net_G = Generator().to(self.device)
+            self.net_D = Discriminator().to(self.device)
+        elif opt.model_type == 'dsconv':
+            self.net_G = DSConvGenerator().to(self.device)
+            self.net_D = DSConvDiscriminator().to(self.device)
+        elif opt.model_type == 'transformer':
+            self.net_G = GeneratorWithTransformer().to(self.device)
+            self.net_D = Discriminator().to(self.device)
         if opt.load != -1:
-            G_ckpt = os.path.join(opt.checkpoint_dir, f"G_epoch:{opt.load}_loss:0.0017368149911535197.pth")
-            D_ckpt = os.path.join(opt.checkpoint_dir, f"D_epoch:{opt.load}_loss:0.0017368149911535197.pth")
+            G_ckpt = os.path.join(opt.checkpoint_dir, f"G_epoch:{opt.load}.pth")
+            D_ckpt = os.path.join(opt.checkpoint_dir, f"D_epoch:{opt.load}.pth")
             self.net_G.load_state_dict(torch.load(G_ckpt))
             self.net_D.load_state_dict(torch.load(D_ckpt))
             print("Successfully load the model")
         self.optim1 = torch.optim.Adam(
-            filter(lambda p: p.requires_grad, self.net_G.parameters()),
+            # filter(lambda p: p.requires_grad, self.net_G.parameters()),
+            self.net_G.parameters(),
             lr=opt.lr,
             betas=(0.5, 0.99),
         )
         self.optim2 = torch.optim.Adam(
-            filter(lambda p: p.requires_grad, self.net_D.parameters()),
+            # filter(lambda p: p.requires_grad, self.net_D.parameters()),
+            self.net_D.parameters(),
             lr=opt.lr,
             betas=(0.5, 0.99),
         )
@@ -81,7 +88,9 @@ class trainer:
         self.criterionMAP = MAPLoss(gamma=0.05)
         # MSE Loss
         self.criterionMSE = nn.MSELoss().to(self.device)
-
+        
+        self.scheduler_G = torch.optim.lr_scheduler.CosineAnnealingLR(self.optim1, T_max=self.iter)
+        self.scheduler_D = torch.optim.lr_scheduler.CosineAnnealingLR(self.optim2, T_max=self.iter)
         self.out_path = opt.checkpoint_dir
 
     def forward_process(self, I_, GT, is_train=True):
@@ -237,7 +246,10 @@ class trainer:
                 save_path = os.path.join(self.out_path, w_name)
                 torch.save(self.net_D.state_dict(), save_path)
             valid_loss_sum = 0.0
-
+            
+        self.scheduler_G.step()
+        self.scheduler_D.step()
+        
         writer.export_scalars_to_json("./attention_video_restoration.json")
         writer.close()
         return

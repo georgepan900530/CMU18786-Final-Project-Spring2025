@@ -97,6 +97,7 @@ class TrainOptions():
 		self.initialized = False
 		self.opt = None
 	def initialize(self):
+		self.parser.add_argument('--model_type', type=str, default='baseline', help='baseline, dsconv, or transformer')
 		self.parser.add_argument('--gpu', type=str, default='0', help='gpu: e.g. 0  0,1 1,2.')
 		self.parser.add_argument('--checkpoint_ext', type=str, default='pkl', help='checkpoint extension')
 		self.parser.add_argument('--checkpoint_dir', type=str, default="./weights/DSConv", help='path to save model')
