@@ -30,10 +30,13 @@ from tensorboardX import SummaryWriter
 class trainer:
     def __init__(self, opt):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.net_D = Discriminator().to(self.device)
-        # self.net_D = DSConvDiscriminator().to(self.device)
-        self.net_G = Generator().to(self.device)
-        # self.net_G = DSConvGenerator().to(self.device)
+        # self.net_D = Discriminator().to(self.device)
+        self.net_D = DSConvDiscriminator().to(self.device)
+        # self.net_G = Generator().to(self.device)
+        self.net_G = DSConvGenerator().to(self.device)
+        self.net_G.load_state_dict(torch.load("./weights/DSConv/G_epoch:81_loss:0.0017368149911535197.pth"))
+        self.net_D.load_state_dict(torch.load("./weights/DSConv/D_epoch:81_loss:0.0017368149911535197.pth"))
+        print("Successfully load the model")
         self.optim1 = torch.optim.Adam(
             filter(lambda p: p.requires_grad, self.net_G.parameters()),
             lr=opt.lr,
@@ -163,6 +166,7 @@ class trainer:
         writer = SummaryWriter()
         count = 0
         before_loss = 10000000
+        self.start = 81
         for epoch in range(self.start, self.iter + 1):
             self.net_G.train()
             self.net_D.train()
