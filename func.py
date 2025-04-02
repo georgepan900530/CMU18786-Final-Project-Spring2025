@@ -50,6 +50,66 @@ def plot_raindrop_mask(mask, save_path=None, show=False):
     else:
         plt.close()
 
+def get_heatmap2(mask, original_img=None, save_path=None, alpha=0.6):
+    """
+    Generate and optionally save a heatmap visualization of the mask.
+    
+    Parameters:
+    -----------
+    mask : numpy.ndarray
+        The mask to visualize, can be single-channel or multi-channel
+    original_img : numpy.ndarray, optional
+        Original image to overlay the heatmap on
+    save_path : str, optional
+        Path to save the visualization
+    show : bool, default=False
+        Whether to display the plot
+    alpha : float, default=0.6
+        Transparency of the heatmap when overlaid on the original image
+    """
+    # Handle single-channel mask
+    if mask.ndim == 2 or (mask.ndim == 3 and mask.shape[2] == 1):
+        # If mask is already single-channel, just squeeze it if needed
+        lum_img = mask.squeeze()
+    else:
+        # Original behavior for 3-channel masks
+        lum_img = np.maximum(
+            np.maximum(
+                mask[:, :, 0],
+                mask[:, :, 1],
+            ),
+            mask[:, :, 2],
+        )
+    
+    # Get image dimensions
+    if original_img is not None:
+        height, width = original_img.shape[:2]
+    else:
+        height, width = lum_img.shape[:2]
+    
+    # Create figure with the exact pixel size of the image
+    dpi = 100  # Default DPI
+    fig = plt.figure(figsize=(width/dpi, height/dpi), dpi=dpi)
+    
+    # Remove margins and padding
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+    
+    # If original image is provided, show it first
+    if original_img is not None:
+        ax.imshow(original_img)
+        # Overlay heatmap with transparency
+        heatmap = ax.imshow(lum_img, cmap="jet", alpha=alpha)
+    else:
+        # Just show the heatmap
+        heatmap = ax.imshow(lum_img, cmap="jet")
+    
+    # Save if path is provided
+    if save_path is not None:
+        plt.savefig(save_path, bbox_inches='tight', pad_inches=0, dpi=dpi)
+    
+    return
 
 def get_heatmap(mask):
     lum_img = np.maximum(
