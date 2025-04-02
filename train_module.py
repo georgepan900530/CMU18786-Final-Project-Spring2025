@@ -29,6 +29,7 @@ from tensorboardX import SummaryWriter
 
 class trainer:
     def __init__(self, opt):
+        self.opt = opt
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if opt.model_type == 'baseline':
             self.net_G = Generator().to(self.device)
@@ -39,6 +40,7 @@ class trainer:
         elif opt.model_type == 'transformer':
             self.net_G = GeneratorWithTransformer().to(self.device)
             self.net_D = Discriminator().to(self.device)
+        print(f"Model type: {opt.model_type}")
         if opt.load != -1:
             G_ckpt = os.path.join(opt.checkpoint_dir, f"G_epoch:{opt.load}.pth")
             D_ckpt = os.path.join(opt.checkpoint_dir, f"D_epoch:{opt.load}.pth")
@@ -78,9 +80,9 @@ class trainer:
 
         # Attention Loss
         if opt.model_type != 'transformer':
-            self.criterionAtt = AttentionLossWithTransformer()
-        else:
             self.criterionAtt = AttentionLoss(theta=0.8, iteration=4)
+        else:
+            self.criterionAtt = AttentionLossWithTransformer()
         # GAN Loss
         self.criterionGAN = GANLoss(real_label=1.0, fake_label=0.0)
         # Perceptual Loss
@@ -148,8 +150,10 @@ class trainer:
             # D(Real)
             # GT = torch_variable(GT,is_train, is_grad=True)
             D_map_R, D_real = self.net_D(GT_)
-
-            loss_MAP = self.criterionMAP(D_map_O, D_map_R, A_[-1].detach())
+            if self.opt.model_type != 'transformer':
+                loss_MAP = self.criterionMAP(D_map_O, D_map_R, A_[-1].detach())
+            else:
+                loss_MAP = self.criterionMAP(D_map_O, D_map_R, A_.detach())
             # 1 - D_real
             # 0 - D_fake
             # loss_GAN_fake = self.criterionGAN(D_fake,is_real=False)

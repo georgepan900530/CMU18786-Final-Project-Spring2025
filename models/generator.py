@@ -552,4 +552,4 @@ if __name__ == "__main__":
     input = torch.from_numpy(input).permute(2, 0, 1).unsqueeze(0).float() / 255.0
     mask, frame1, frame2, x = generator(input)
     print(mask.shape, frame1.shape, frame2.shape, x.shape)
-    plot_raindrop_mask(mask, save_path="raindrop_mask.png", show=True)
+    

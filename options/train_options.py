@@ -100,7 +100,7 @@ class TrainOptions():
 		self.parser.add_argument('--model_type', type=str, default='baseline', help='baseline, dsconv, or transformer')
 		self.parser.add_argument('--gpu', type=str, default='0', help='gpu: e.g. 0  0,1 1,2.')
 		self.parser.add_argument('--checkpoint_ext', type=str, default='pkl', help='checkpoint extension')
-		self.parser.add_argument('--checkpoint_dir', type=str, default="./weights/DSConv", help='path to save model')
+		self.parser.add_argument('--checkpoint_dir', type=str, default="./weights/transformer", help='path to save model')
 		self.parser.add_argument('--load', type=int, default=-1, help='epoch number which you want to load. use -1 for latest')
 		self.parser.add_argument('--train_dataset', type=str, default='./dataset/train', help='path to training dataset')
 		self.parser.add_argument('--eval_dataset', type=str, default='./dataset/test_a', help='path to evaluation dataset')
