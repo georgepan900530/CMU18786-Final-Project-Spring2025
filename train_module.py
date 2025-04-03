@@ -305,10 +305,10 @@ class trainer:
                 save_path = os.path.join(self.out_path, w_name)
                 torch.save(self.net_D.state_dict(), save_path)
             valid_loss_sum = 0.0
-            
-        self.scheduler_G.step()
-        self.scheduler_D.step()
-        
+            self.scheduler_G.step()
+            self.scheduler_D.step()
+        torch.save(self.net_G.state_dict(), os.path.join(self.out_path, "G_final.pth"))
+        torch.save(self.net_D.state_dict(), os.path.join(self.out_path, "D_final.pth"))
         writer.export_scalars_to_json("./attention_video_restoration.json")
         writer.close()
         return

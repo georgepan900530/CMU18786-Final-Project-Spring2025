@@ -507,7 +507,7 @@ class GeneratorWithTransformer(nn.Module):
         self.outframe1 = nn.Sequential(nn.Conv2d(256, 3, 3, 1, 1), nn.ReLU())
         self.outframe2 = nn.Sequential(nn.Conv2d(128, 3, 3, 1, 1), nn.ReLU())
         self.output = nn.Sequential(nn.Conv2d(32, 3, 3, 1, 1))
-        self.raindrop_decoder = RainDropMaskDecoder(embed_dim=1024, num_heads=8, depth=12, mlp_dim=4096, dropout=0.0)
+        self.raindrop_decoder = RainDropMaskDecoder(embed_dim=1024, num_heads=8, depth=6, mlp_dim=2048, dropout=0.0)
 
     def forward(self, input):
         mask = self.raindrop_decoder(input)

@@ -50,7 +50,7 @@ def plot_raindrop_mask(mask, save_path=None, show=False):
     else:
         plt.close()
 
-def get_heatmap2(mask, original_img=None, save_path=None, alpha=0.6):
+def get_heatmap(mask, original_img=None, save_path=None, alpha=0.6):
     """
     Generate and optionally save a heatmap visualization of the mask.
     
@@ -118,20 +118,20 @@ def get_heatmap2(mask, original_img=None, save_path=None, alpha=0.6):
     
     return
 
-def get_heatmap(mask):
-    lum_img = np.maximum(
-        np.maximum(
-            mask[:, :, 0],
-            mask[:, :, 1],
-        ),
-        mask[:, :, 2],
-    )
-    imgplot = plt.imshow(lum_img)
-    imgplot.set_cmap("jet")
-    plt.colorbar()
-    plt.axis("off")
-    pylab.show()
-    return
+# def get_heatmap(mask):
+#     lum_img = np.maximum(
+#         np.maximum(
+#             mask[:, :, 0],
+#             mask[:, :, 1],
+#         ),
+#         mask[:, :, 2],
+#     )
+#     imgplot = plt.imshow(lum_img)
+#     imgplot.set_cmap("jet")
+#     plt.colorbar()
+#     plt.axis("off")
+#     pylab.show()
+#     return
 
 
 def get_mask(dg_img, img):
