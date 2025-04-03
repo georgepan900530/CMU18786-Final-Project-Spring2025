@@ -253,4 +253,3 @@ if __name__ == "__main__":
     mask = rain_drop_mask_decoder(input)
     print(mask.shape)
     mask = mask[0].detach().cpu().numpy()
-    plot_raindrop_mask(mask, save_path="raindrop_mask.png")
