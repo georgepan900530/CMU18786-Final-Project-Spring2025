@@ -51,7 +51,7 @@ class AdvancedGANLoss(nn.Module):
             noise_std (float): Standard deviation of noise added to labels
             use_noise (bool): Whether to use noise injection
         """
-        super(GANLoss, self).__init__()
+        super(AdvancedGANLoss, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.mode = mode.lower()
         self.label_smoothing = label_smoothing
