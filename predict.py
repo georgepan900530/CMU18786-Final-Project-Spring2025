@@ -23,6 +23,7 @@ from metrics import calc_psnr, calc_ssim, calc_lpips
 
 def get_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--model", type=str, default="baseline", help="baseline, dsconv, transformer")
     parser.add_argument("--mode", type=str)
     parser.add_argument("--input_dir", type=str)
     parser.add_argument("--output_dir", type=str)
@@ -62,8 +63,12 @@ def predict(image):
 if __name__ == "__main__":
     args = get_args()
 
-    model = DSConvGenerator().cuda()
-    # model = Generator().cuda()
+    if args.model == "dsconv":
+        model = DSConvGenerator().cuda()
+    elif args.model == "transformer":
+        model = GeneratorWithTransformer().cuda()
+    else:
+        model = Generator().cuda()
     model.load_state_dict(torch.load(args.ckpt_path))
     model.eval()
     if not os.path.exists(args.output_dir):
