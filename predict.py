@@ -81,8 +81,11 @@ if __name__ == "__main__":
         for i in range(num):
             print("Processing image: %s" % (input_list[i]))
             img = cv2.imread(args.input_dir + input_list[i])
-            img = align_to_four(img)
+            original_h, original_w = img.shape[:2]
+            img = cv2.resize(img, (224, 224))
+            # img = align_to_four(img)
             result = predict(img)
+            result = cv2.resize(result, (original_w, original_h))
             img_name = input_list[i].split(".")[0]
             path = os.path.join(args.output_dir, img_name + ".jpg")
             cv2.imwrite(path, result)
