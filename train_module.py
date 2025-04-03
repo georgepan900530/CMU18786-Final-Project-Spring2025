@@ -94,8 +94,8 @@ class trainer:
         # MSE Loss
         self.criterionMSE = nn.MSELoss().to(self.device)
         
-        self.scheduler_G = torch.optim.lr_scheduler.CosineAnnealingLR(self.optim1, T_max=self.iter)
-        self.scheduler_D = torch.optim.lr_scheduler.CosineAnnealingLR(self.optim2, T_max=self.iter)
+        self.scheduler_G = torch.optim.lr_scheduler.CosineAnnealingLR(self.optim1, T_max=self.iter, verbose=True)
+        self.scheduler_D = torch.optim.lr_scheduler.CosineAnnealingLR(self.optim2, T_max=self.iter, verbose=True)
         self.out_path = opt.checkpoint_dir
 
     def forward_process(self, I_, GT, is_train=True):
