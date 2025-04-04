@@ -31,13 +31,13 @@ class trainer:
     def __init__(self, opt):
         self.opt = opt
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        if opt.model_type == 'baseline':
+        if opt.model_type == "baseline":
             self.net_G = Generator().to(self.device)
             self.net_D = Discriminator().to(self.device)
-        elif opt.model_type == 'dsconv':
+        elif opt.model_type == "dsconv":
             self.net_G = DSConvGenerator().to(self.device)
             self.net_D = DSConvDiscriminator().to(self.device)
-        elif opt.model_type == 'transformer':
+        elif opt.model_type == "transformer":
             self.net_G = GeneratorWithTransformer().to(self.device)
             self.net_D = Discriminator().to(self.device)
         print(f"Model type: {opt.model_type}")
@@ -69,9 +69,15 @@ class trainer:
         train_size = len(train_dataset)
         valid_size = len(valid_dataset)
         self.train_loader = DataLoader(
-            train_dataset, batch_size=opt.batch_size, shuffle=True, num_workers=2, pin_memory=True
+            train_dataset,
+            batch_size=opt.batch_size,
+            shuffle=True,
+            num_workers=2,
+            pin_memory=True,
         )
-        self.valid_loader = DataLoader(valid_dataset, batch_size=opt.batch_size, num_workers=2, pin_memory=True)
+        self.valid_loader = DataLoader(
+            valid_dataset, batch_size=opt.batch_size, num_workers=2, pin_memory=True
+        )
 
         print("# train set : {}".format(train_size))
         print("# eval set : {}".format(valid_size))
@@ -79,19 +85,19 @@ class trainer:
         self.expr_dir = opt.checkpoint_dir
 
         # Attention Loss
-        if opt.model_type != 'transformer':
+        if opt.model_type != "transformer":
             self.criterionAtt = AttentionLoss(theta=0.8, iteration=4)
         else:
             self.criterionAtt = AttentionLossWithTransformer()
         # GAN Loss
-        if opt.gan_loss == 'bce':
+        if opt.gan_loss == "bce":
             self.criterionGAN = GANLoss(real_label=1.0, fake_label=0.0)
-        elif opt.gan_loss == 'mse':
-            self.criterionGAN = AdvancedGANLoss(mode='mse')
-        elif opt.gan_loss == 'hinge':
-            self.criterionGAN = AdvancedGANLoss(mode='hinge')
-        elif opt.gan_loss == 'wasserstein':
-            self.criterionGAN = AdvancedGANLoss(mode='wasserstein')
+        elif opt.gan_loss == "mse":
+            self.criterionGAN = AdvancedGANLoss(mode="mse")
+        elif opt.gan_loss == "hinge":
+            self.criterionGAN = AdvancedGANLoss(mode="hinge")
+        elif opt.gan_loss == "wasserstein":
+            self.criterionGAN = AdvancedGANLoss(mode="wasserstein")
             self.lambda_gp = 10.0
         # Perceptual Loss
         self.criterionPL = PerceptualLoss()
@@ -101,22 +107,28 @@ class trainer:
         self.criterionMAP = MAPLoss(gamma=0.05)
         # MSE Loss
         self.criterionMSE = nn.MSELoss().to(self.device)
-        
-        self.scheduler_G = torch.optim.lr_scheduler.CosineAnnealingLR(self.optim1, T_max=self.iter, verbose=True)
-        self.scheduler_D = torch.optim.lr_scheduler.CosineAnnealingLR(self.optim2, T_max=self.iter, verbose=True)
+
+        self.scheduler_G = torch.optim.lr_scheduler.CosineAnnealingLR(
+            self.optim1, T_max=self.iter, verbose=True
+        )
+        self.scheduler_D = torch.optim.lr_scheduler.CosineAnnealingLR(
+            self.optim2, T_max=self.iter, verbose=True
+        )
         self.out_path = opt.checkpoint_dir
-        
+
     def compute_gradient_penalty(self, real_samples, fake_samples):
         """Calculates the gradient penalty loss for WGAN-GP"""
         # Random weight term for interpolation between real and fake samples
         alpha = torch.rand(real_samples.size(0), 1, 1, 1).to(self.device)
-        
+
         # Get random interpolation between real and fake samples
-        interpolates = (alpha * real_samples + ((1 - alpha) * fake_samples)).requires_grad_(True)
-        
+        interpolates = (
+            alpha * real_samples + ((1 - alpha) * fake_samples)
+        ).requires_grad_(True)
+
         # Get discriminator output for interpolated images
         d_map_interpolates, d_interpolates = self.net_D(interpolates)
-        
+
         # Get gradients
         gradients = torch.autograd.grad(
             outputs=d_interpolates,
@@ -126,20 +138,20 @@ class trainer:
             retain_graph=True,
             only_inputs=True,
         )[0]
-        
+
         # Flatten gradients to calculate their norm
         gradients = gradients.view(gradients.size(0), -1)
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
-        
+
         return gradient_penalty
-    
+
     def forward_process(self, I_, GT, is_train=True):
         # I_: input raindrop image
         # A_: attention map(Mask_list) from ConvLSTM
         # M_: mask GT
         # O_: output image of the autoencoder
         # T_: GT
-        
+
         # M_ = []
         # for i in range(I_.shape[0]):
         #     I_img = I_[i].permute(1, 2, 0).cpu().numpy()
@@ -150,16 +162,14 @@ class trainer:
         # M_ = torch.from_numpy(np.array(M_)).permute(0, 3, 1, 2).float().to(self.device)
         # I_ = I_.to(self.device)
         # GT_ = GT.to(self.device)
-        
-        
+
         M_ = []
         for i in range(I_.shape[0]):
-            M_.append(get_mask(np.array(I_[i]),np.array(GT[i])))
+            M_.append(get_mask(np.array(I_[i]), np.array(GT[i])))
         M_ = np.array(M_)
         M_ = torch_variable(M_, is_train)
         I_ = torch_variable(I_, is_train)
         GT_ = torch_variable(GT, is_train)
-        
 
         A_, t1, t2, t3 = self.net_G(I_)
         # print 'mask len', len(A_)
@@ -185,11 +195,11 @@ class trainer:
             # D(Real)
             # GT = torch_variable(GT,is_train, is_grad=True)
             D_map_R, D_real = self.net_D(GT_)
-            if self.opt.model_type != 'transformer':
+            if self.opt.model_type != "transformer":
                 loss_MAP = self.criterionMAP(D_map_O, D_map_R, A_[-1].detach())
             else:
                 loss_MAP = self.criterionMAP(D_map_O, D_map_R, A_.detach())
-            
+
             # loss_fake = self.criterionGAN(
             #     D_fake, is_real=False
             # )  # BCE 1, D_fake -(log(1-fake))
@@ -201,17 +211,19 @@ class trainer:
             # # print (loss_gen_D), (loss_att), (loss_ML), (loss_PL)
             # loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL
             # Calculate losses based on the GAN type
-            if self.opt.gan_loss == 'wasserstein':
+            if self.opt.gan_loss == "wasserstein":
                 # Wasserstein loss with gradient penalty
                 loss_fake = self.criterionGAN(D_fake, is_real=False)
                 loss_real = self.criterionGAN(D_real, is_real=True)
-                
+
                 # Calculate gradient penalty
                 gradient_penalty = self.compute_gradient_penalty(GT_, t3.detach())
-                
+
                 # Discriminator loss
-                loss_D = loss_real + loss_fake + self.lambda_gp * gradient_penalty + loss_MAP
-                
+                loss_D = (
+                    loss_real + loss_fake + self.lambda_gp * gradient_penalty + loss_MAP
+                )
+
                 # Generator loss (note: for WGAN we want to maximize D(G(z))
                 loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL
             else:
@@ -275,8 +287,7 @@ class trainer:
                     )
                     writer.add_scalar("loss_G", loss_G.item(), count)
                     writer.add_scalar("loss_D", loss_D.item(), count)
-                    
-            
+
             step = 0
             self.net_G.eval()
             self.net_D.eval()
@@ -298,10 +309,10 @@ class trainer:
                 print("save model " + "!" * 10)
                 if not os.path.exists(self.out_path):
                     os.system("mkdir -p {}".format(self.out_path))
-                w_name = "G_epoch:{}.pth".format(epoch)
+                w_name = "G_epoch_{}.pth".format(epoch)
                 save_path = os.path.join(self.out_path, w_name)
                 torch.save(self.net_G.state_dict(), save_path)
-                w_name = "D_epoch:{}.pth".format(epoch)
+                w_name = "D_epoch_{}.pth".format(epoch)
                 save_path = os.path.join(self.out_path, w_name)
                 torch.save(self.net_D.state_dict(), save_path)
             valid_loss_sum = 0.0
