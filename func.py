@@ -11,49 +11,10 @@ import torch
 from torch.autograd import Variable
 
 
-def plot_raindrop_mask(mask, save_path=None, show=False):
-    """
-    Plot a heatmap visualization of the raindrop mask.
-
-    Parameters:
-    -----------
-    mask : torch.Tensor or numpy.ndarray
-        The raindrop mask with shape (1, H, W) or (H, W)
-    save_path : str, optional
-        Path to save the visualization. If None, the image is not saved.
-    show : bool, default=True
-        Whether to display the plot
-    """
-    # Convert to numpy if it's a torch tensor
-    if isinstance(mask, torch.Tensor):
-        mask = mask.detach().cpu().numpy()
-
-    # Squeeze the channel dimension if it exists
-    mask = mask.squeeze()
-
-    # Create figure
-    plt.figure(figsize=(10, 8))
-
-    # Plot heatmap
-    im = plt.imshow(mask, cmap="jet")
-    plt.colorbar(im, label="Mask Intensity")
-    plt.title("Raindrop Mask Heatmap")
-    plt.axis("off")
-
-    # Save if path is provided
-    if save_path is not None:
-        plt.savefig(save_path, bbox_inches="tight", dpi=300)
-
-    # Show or close
-    if show:
-        plt.show()
-    else:
-        plt.close()
-
 def get_heatmap(mask, original_img=None, save_path=None, alpha=0.6):
     """
     Generate and optionally save a heatmap visualization of the mask.
-    
+
     Parameters:
     -----------
     mask : numpy.ndarray
@@ -80,19 +41,19 @@ def get_heatmap(mask, original_img=None, save_path=None, alpha=0.6):
             ),
             mask[:, :, 2],
         )
-    
+
     # Get image dimensions
     if original_img is not None:
         height, width = original_img.shape[:2]
     else:
         height, width = lum_img.shape[:2]
-    
+
     # Create figure with the exact pixel size of the image
     dpi = 100  # Default DPI
-    fig = plt.figure(figsize=(width/dpi, height/dpi), dpi=dpi)
-    
+    fig = plt.figure(figsize=(width / dpi, height / dpi), dpi=dpi)
+
     # Remove margins and padding
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
     ax.set_axis_off()
     fig.add_axes(ax)
 
@@ -108,15 +69,16 @@ def get_heatmap(mask, original_img=None, save_path=None, alpha=0.6):
     else:
         # Just show the heatmap
         imgplot = plt.imshow(lum_img, cmap="jet")
-        
+
     # Add colorbar
     plt.colorbar(imgplot)
-    
+
     # Save if path is provided
     if save_path is not None:
-        plt.savefig(save_path, bbox_inches='tight', pad_inches=0, dpi=dpi)
-    
+        plt.savefig(save_path, bbox_inches="tight", pad_inches=0, dpi=dpi)
+
     return
+
 
 # def get_heatmap(mask):
 #     lum_img = np.maximum(
