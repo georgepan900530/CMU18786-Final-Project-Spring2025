@@ -117,11 +117,6 @@ class AdvancedGANLoss(nn.Module):
         else:
             target_tensor = self.get_target_tensor(input, is_real)
             return self.loss(input, target_tensor)
-            
-    def train(self, mode=True):
-        """Override train method to ensure proper behavior during eval."""
-        super(GANLoss, self).train(mode)
-        return self
 
 
 class AttentionLoss(nn.Module):

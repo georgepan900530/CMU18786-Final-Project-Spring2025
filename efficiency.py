@@ -82,26 +82,18 @@ def print_model_efficiency(model, input_size=(1, 3, 224, 224)):
 
 # Example usage
 if __name__ == "__main__":
-    # # Create a simple example model
-    # example_model = nn.Sequential(
-    #     nn.Conv2d(3, 64, kernel_size=3, padding=1),
-    #     nn.ReLU(),
-    #     nn.MaxPool2d(2),
-    #     nn.Conv2d(64, 128, kernel_size=3, padding=1),
-    #     nn.ReLU(),
-    #     nn.MaxPool2d(2),
-    #     nn.Flatten(),
-    #     nn.Linear(128 * 56 * 56, 1000),
-    #     nn.ReLU(),
-    #     nn.Linear(1000, 10),
-    # )
+    
+    discriminator = Discriminator()
+    generator = Generator()
+    
+    # dsconvdiscriminator = DSConvDiscriminator()
+    # dsconvgenerator = DSConvGenerator()
+    
     # discriminator = Discriminator()
-    # generator = Generator()
-    dsconvdiscriminator = DSConvDiscriminator()
-    dsconvgenerator = DSConvGenerator()
+    # transformer_generator = GeneratorWithTransformer()
 
     print("Discriminator")
-    print_model_efficiency(dsconvdiscriminator)
+    print_model_efficiency(discriminator)
     print("-" * 100)
     print("Generator")
-    print_model_efficiency(dsconvgenerator)
+    print_model_efficiency(generator)

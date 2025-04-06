@@ -80,7 +80,7 @@ if __name__ == "__main__":
         num = len(input_list)
         for i in range(num):
             print("Processing image: %s" % (input_list[i]))
-            img = cv2.imread(args.input_dir + input_list[i])
+            img = cv2.imread(os.path.join(args.input_dir, input_list[i]))
             original_h, original_w = img.shape[:2]
             img = cv2.resize(img, (224, 224))
             # img = align_to_four(img)
@@ -99,10 +99,12 @@ if __name__ == "__main__":
         cumulative_lpips = 0
         for i in range(num):
             print("Processing image: %s" % (input_list[i]))
-            img = cv2.imread(args.input_dir + input_list[i])
-            gt = cv2.imread(args.gt_dir + gt_list[i])
-            img = align_to_four(img)
-            gt = align_to_four(gt)
+            img = cv2.imread(os.path.join(args.input_dir, input_list[i]))
+            gt = cv2.imread(os.path.join(args.gt_dir, gt_list[i]))
+            # img = align_to_four(img)
+            # gt = align_to_four(gt)
+            img = cv2.resize(img, (224, 224))
+            gt = cv2.resize(gt, (224, 224))
             result = predict(img)
             result = np.array(result, dtype="uint8")
             cur_psnr = calc_psnr(result, gt)
