@@ -142,7 +142,7 @@ class trainer:
         )[0]
 
         # Flatten gradients to calculate their norm
-        gradients = gradients.view(gradients.size(0), -1)
+        gradients = gradients.contiguous().view(gradients.size(0), -1)
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
 
         return gradient_penalty
