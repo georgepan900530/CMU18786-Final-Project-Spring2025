@@ -309,4 +309,5 @@ Params size (MB): 24.98
 Estimated Total Size (MB): 972.88
 ==========================================================================================
 
-In testing dataset, PSNR is 27.8487 and SSIM is 0.9050 and LPIPS is 0.0638
+In testing dataset, PSNR is 28.5041 and SSIM is 0.9214 and LPIPS is 0.0613
+Average time taken for prediction: 0.07424224656203697 seconds
