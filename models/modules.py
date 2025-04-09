@@ -91,13 +91,16 @@ class FeedForward(nn.Module):
 
 
 class Attention(nn.Module):
-    def __init__(self, dim, heads=8, dim_head=64, dropout=0.0):
+    def __init__(self, dim, heads=8, dim_head=64, dropout=0.0, local_conv=False):
         super().__init__()
         inner_dim = dim_head * heads
         project_out = not (heads == 1 and dim_head == dim)
 
         self.heads = heads
         self.scale = dim_head**-0.5
+        self.local_conv = local_conv
+        if local_conv:
+            self.local_conv = nn.Conv1d(dim, dim, kernel_size=3, padding=1)
 
         self.norm = nn.LayerNorm(dim)
 
@@ -113,6 +116,12 @@ class Attention(nn.Module):
         )
 
     def forward(self, x):
+        if self.local_conv:
+            # Optionally apply a convolution over the sequence dimension.
+            # Rearrange from (b, n, dim) -> (b, dim, n)
+            x_conv = self.local_conv(x.transpose(1, 2)).transpose(1, 2)
+            x = x + x_conv  # fuse local context
+        
         x = self.norm(x)
 
         qkv = self.to_qkv(x).chunk(3, dim=-1)
