@@ -507,7 +507,14 @@ class GeneratorWithTransformer(nn.Module):
         self.outframe1 = nn.Sequential(nn.Conv2d(256, 3, 3, 1, 1), nn.ReLU())
         self.outframe2 = nn.Sequential(nn.Conv2d(128, 3, 3, 1, 1), nn.ReLU())
         self.output = nn.Sequential(nn.Conv2d(32, 3, 3, 1, 1))
-        self.raindrop_decoder = RainDropMaskDecoder(embed_dim=1024, num_heads=8, depth=12, mlp_dim=4096, dropout=0.0)
+        self.raindrop_decoder = RainDropMaskDecoder(
+            embed_dim=1024,
+            num_heads=8,
+            depth=12,
+            mlp_dim=4096,
+            dropout=0.0,
+            patch_size=8,
+        )
 
     def forward(self, input):
         mask = self.raindrop_decoder(input)
@@ -537,6 +544,7 @@ class GeneratorWithTransformer(nn.Module):
         x = self.output(x)
         return mask, frame1, frame2, x
 
+
 if __name__ == "__main__":
     # dsconv_generator = DSConvGenerator()
     # net = Generator()
@@ -546,10 +554,11 @@ if __name__ == "__main__":
     # mask_list, frame1, frame2, x = dsconv_generator(input)
     # print(mask_list[0].shape, frame1.shape, frame2.shape, x.shape)
     generator = GeneratorWithTransformer()
-    img_path = "/mnt/project/CMU18786-Final-Project-Spring2025/dataset/train/data/1_rain.png"
+    img_path = (
+        "/mnt/project/CMU18786-Final-Project-Spring2025/dataset/train/data/1_rain.png"
+    )
     input = cv2.imread(img_path)
     input = cv2.resize(input, (224, 224))
     input = torch.from_numpy(input).permute(2, 0, 1).unsqueeze(0).float() / 255.0
     mask, frame1, frame2, x = generator(input)
     print(mask.shape, frame1.shape, frame2.shape, x.shape)
-    

@@ -121,7 +121,7 @@ class Attention(nn.Module):
             # Rearrange from (b, n, dim) -> (b, dim, n)
             x_conv = self.local_conv(x.transpose(1, 2)).transpose(1, 2)
             x = x + x_conv  # fuse local context
-        
+
         x = self.norm(x)
 
         qkv = self.to_qkv(x).chunk(3, dim=-1)

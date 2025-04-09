@@ -104,9 +104,30 @@ def get_mask(dg_img, img):
     mask[np.where(mask > 0.0)] = 1.0
     # avg? max?
     # mask = np.average(mask, axis=2)
-    mask = np.max(mask, axis=2)
+    # mask = np.max(mask, axis=2)
+    mask = np.mean(mask, axis=2)
     mask = np.expand_dims(mask, axis=2)
     return mask
+
+
+# def get_mask(dg_img, img, threshold=30.0 / 255.0):
+#     # Calculate absolute difference
+#     mask = np.fabs(dg_img - img)
+
+#     # Apply adaptive thresholding
+#     mask = np.where(mask < threshold, 0.0, 1.0)
+
+#     # Use average instead of max for channel reduction
+#     mask = np.max(mask, axis=2)
+
+#     # Expand dimensions
+#     mask = np.expand_dims(mask, axis=2)
+
+#     # Apply morphological operations if needed
+#     kernel = np.ones((2, 2), np.uint8)
+#     mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, kernel)
+
+#     return mask
 
 
 def torch_variable(x, is_train):
