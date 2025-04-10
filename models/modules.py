@@ -138,7 +138,9 @@ class Attention(nn.Module):
 
 
 class Transformer(nn.Module):
-    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout=0.0):
+    def __init__(
+        self, dim, depth, heads, dim_head, mlp_dim, dropout=0.0, local_conv=False
+    ):
         super().__init__()
         self.norm = nn.LayerNorm(dim)
         self.layers = nn.ModuleList([])
@@ -146,7 +148,13 @@ class Transformer(nn.Module):
             self.layers.append(
                 nn.ModuleList(
                     [
-                        Attention(dim, heads=heads, dim_head=dim_head, dropout=dropout),
+                        Attention(
+                            dim,
+                            heads=heads,
+                            dim_head=dim_head,
+                            dropout=dropout,
+                            local_conv=local_conv,
+                        ),
                         FeedForward(dim, mlp_dim, dropout=dropout),
                     ]
                 )
@@ -192,6 +200,7 @@ class RainDropMaskDecoder(nn.Module):
         img_size=(224, 224),
         patch_size=16,
         channels=3,
+        local_conv=False,
     ):
         super(RainDropMaskDecoder, self).__init__()
 
@@ -226,6 +235,7 @@ class RainDropMaskDecoder(nn.Module):
             dim_head=embed_dim // num_heads,
             mlp_dim=mlp_dim,
             dropout=dropout,
+            local_conv=local_conv,
         )
 
         # Decoder layers to upsample back to original image size

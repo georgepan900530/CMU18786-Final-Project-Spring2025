@@ -251,6 +251,7 @@ class trainer:
         writer = SummaryWriter()
         count = 0
         before_loss = 10000000
+        early_stop = 0
         for epoch in range(self.start, self.iter + 1):
             self.net_G.train()
             self.net_D.train()
@@ -307,6 +308,7 @@ class trainer:
             writer.add_scalar("validation_loss", avg_valid, epoch)
             valid_loss_sum = valid_loss_sum.item() / step
             if before_loss / valid_loss_sum > 1.01:
+                early_stop = 0
                 before_loss = valid_loss_sum
                 print("save model " + "!" * 10)
                 if not os.path.exists(self.out_path):
@@ -317,6 +319,11 @@ class trainer:
                 w_name = "D_epoch_{}.pth".format(epoch)
                 save_path = os.path.join(self.out_path, w_name)
                 torch.save(self.net_D.state_dict(), save_path)
+            else:
+                early_stop += 1
+                if early_stop > 10:
+                    print("early stop after 10 epochs without improvement :(")
+                    break
             valid_loss_sum = 0.0
             if self.opt.scheduler:
                 self.scheduler_G.step()
