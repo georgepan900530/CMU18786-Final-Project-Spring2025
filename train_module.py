@@ -38,9 +38,15 @@ class trainer:
             self.net_G = DSConvGenerator().to(self.device)
             self.net_D = DSConvDiscriminator().to(self.device)
         elif opt.model_type == "transformer":
-            self.net_G = GeneratorWithTransformer(local_conv=opt.local_conv).to(
-                self.device
-            )
+            self.net_G = GeneratorWithTransformer(
+                embed_dim=opt.embed_dim,
+                num_heads=opt.num_heads,
+                depth=opt.depth,
+                mlp_dim=opt.mlp_dim,
+                dropout=opt.dropout,
+                patch_size=opt.patch_size,
+                local_conv=opt.local_conv
+            ).to(self.device)
             self.net_D = Discriminator().to(self.device)
         print(f"Model type: {opt.model_type}")
         if opt.load != -1:

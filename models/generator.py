@@ -445,7 +445,7 @@ class DSConvGenerator(nn.Module):
 
 
 class GeneratorWithTransformer(nn.Module):
-    def __init__(self, local_conv=False):
+    def __init__(self, embed_dim=1024, num_heads=8, depth=12, mlp_dim=4096, dropout=0.0, patch_size=16, local_conv=False):
         super(GeneratorWithTransformer, self).__init__()
         self.det_conv0 = nn.Sequential(nn.Conv2d(4, 32, 3, 1, 1), nn.ReLU())
         self.det_conv1 = nn.Sequential(
@@ -508,12 +508,12 @@ class GeneratorWithTransformer(nn.Module):
         self.outframe2 = nn.Sequential(nn.Conv2d(128, 3, 3, 1, 1), nn.ReLU())
         self.output = nn.Sequential(nn.Conv2d(32, 3, 3, 1, 1))
         self.raindrop_decoder = RainDropMaskDecoder(
-            embed_dim=2048,
-            num_heads=10,
-            depth=12,
-            mlp_dim=4096,
-            dropout=0.1,
-            patch_size=8,
+            embed_dim=embed_dim,
+            num_heads=num_heads,
+            depth=depth,
+            mlp_dim=mlp_dim,
+            dropout=dropout,
+            patch_size=patch_size,
             local_conv=local_conv,
         )
         for name, param in self.raindrop_decoder.params.items():

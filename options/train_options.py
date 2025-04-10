@@ -74,6 +74,44 @@ class TrainOptions:
             "--iter", type=int, default=200, help="number of iterations"
         )
         self.parser.add_argument("--batch_size", type=int, default=4, help="batch size")
+        
+        # Transformer
+        self.parser.add_argument(
+            "--embed_dim",
+            type=int,
+            default=1024,
+            help="embedding dimension",
+        )
+        self.parser.add_argument(
+            "--num_heads",
+            type=int,
+            default=8,
+            help="number of heads",
+        )
+        self.parser.add_argument(
+            "--depth",
+            type=int,
+            default=12,
+            help="depth of transformer",
+        )
+        self.parser.add_argument(
+            "--mlp_dim",
+            type=int,
+            default=4096,
+            help="mlp dimension",
+        )
+        self.parser.add_argument(
+            "--dropout",
+            type=float,
+            default=0.0,
+            help="dropout rate",
+        )
+        self.parser.add_argument(
+            "--patch_size",
+            type=int,
+            default=16,
+            help="patch size",
+        )
         self.parser.add_argument(
             "--local_conv",
             action="store_true",
