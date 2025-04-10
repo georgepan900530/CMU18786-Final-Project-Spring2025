@@ -101,7 +101,7 @@ class TrainOptions:
         self.parser.add_argument(
             "--num_heads",
             type=int,
-            default=8,
+            default=10,
             help="number of heads",
         )
         self.parser.add_argument(
@@ -148,17 +148,17 @@ class TrainOptions:
         self.opt.gpu = gpu
         if len(gpu) > 0:
             torch.cuda.set_device(self.opt.gpu[0])
-        if self.opt.load < 0:
-            files = os.listdir(self.opt.checkpoint_dir)
-            cps = []
-            for f in files:
-                ext = os.path.splitext(f)[-1]
-                if ext[1:] == self.opt.checkpoint_ext:
-                    e_ = f.split("_")[0]
-                    cps.append(int(e_[1:]))
-                cps = sorted(cps)
-                if len(cps) > 0:
-                    self.opt.load = int(cps[-1])
-                else:
-                    self.opt.load = 1
+        # if self.opt.load < 0:
+        #     files = os.listdir(self.opt.checkpoint_dir)
+        #     cps = []
+        #     for f in files:
+        #         ext = os.path.splitext(f)[-1]
+        #         if ext[1:] == self.opt.checkpoint_ext:
+        #             e_ = f.split("_")[0]
+        #             cps.append(int(e_[1:]))
+        #         cps = sorted(cps)
+        #         if len(cps) > 0:
+        #             self.opt.load = int(cps[-1])
+        #         else:
+        #             self.opt.load = 1
         return self.opt

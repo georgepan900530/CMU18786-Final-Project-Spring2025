@@ -50,8 +50,8 @@ class trainer:
             self.net_D = Discriminator().to(self.device)
         print(f"Model type: {opt.model_type}")
         if opt.load != -1:
-            G_ckpt = os.path.join(opt.checkpoint_dir, f"G_epoch:{opt.load}.pth")
-            D_ckpt = os.path.join(opt.checkpoint_dir, f"D_epoch:{opt.load}.pth")
+            G_ckpt = os.path.join(opt.checkpoint_dir, f"G_epoch_{opt.load}.pth")
+            D_ckpt = os.path.join(opt.checkpoint_dir, f"D_epoch_{opt.load}.pth")
             self.net_G.load_state_dict(torch.load(G_ckpt))
             self.net_D.load_state_dict(torch.load(D_ckpt))
             print("Successfully load the model")
@@ -78,8 +78,6 @@ class trainer:
             transform = transforms.Compose([
                 transforms.Resize((224, 224)),
                 transforms.RandomHorizontalFlip(),
-                transforms.RandomRotation(10),
-                transforms.RandomGrayscale(p=0.2),
                 transforms.ToTensor(),
             ])
         else:
