@@ -445,7 +445,7 @@ class DSConvGenerator(nn.Module):
 
 
 class GeneratorWithTransformer(nn.Module):
-    def __init__(self):
+    def __init__(self, local_conv=False):
         super(GeneratorWithTransformer, self).__init__()
         self.det_conv0 = nn.Sequential(nn.Conv2d(4, 32, 3, 1, 1), nn.ReLU())
         self.det_conv1 = nn.Sequential(
@@ -514,6 +514,7 @@ class GeneratorWithTransformer(nn.Module):
             mlp_dim=4096,
             dropout=0.0,
             patch_size=8,
+            local_conv=local_conv,
         )
 
     def forward(self, input):

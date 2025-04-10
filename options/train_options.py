@@ -1,6 +1,7 @@
 """
 This file is refactored from the unofficial implementation of the paper (https://github.com/shleecs/DeRaindrop_unofficial)
 """
+
 import argparse
 import torch
 import os
@@ -73,6 +74,17 @@ class TrainOptions:
             "--iter", type=int, default=200, help="number of iterations"
         )
         self.parser.add_argument("--batch_size", type=int, default=4, help="batch size")
+        self.parser.add_argument(
+            "--local_conv",
+            action="store_true",
+            help="use local conv for transformer",
+        )
+        self.parser.add_argument(
+            "--early_stop",
+            type=int,
+            default=10,
+            help="early stop after n epochs without improvement",
+        )
 
     def parse(self):
         if not self.initialized:

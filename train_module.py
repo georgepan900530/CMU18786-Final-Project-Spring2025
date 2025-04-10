@@ -38,7 +38,9 @@ class trainer:
             self.net_G = DSConvGenerator().to(self.device)
             self.net_D = DSConvDiscriminator().to(self.device)
         elif opt.model_type == "transformer":
-            self.net_G = GeneratorWithTransformer().to(self.device)
+            self.net_G = GeneratorWithTransformer(local_conv=opt.local_conv).to(
+                self.device
+            )
             self.net_D = Discriminator().to(self.device)
         print(f"Model type: {opt.model_type}")
         if opt.load != -1:
@@ -62,6 +64,7 @@ class trainer:
         self.start = opt.load
         self.iter = opt.iter
         self.batch_size = opt.batch_size
+        self.early_stop = opt.early_stop
         # train_dataset = RainDataset("./dataset", is_eval=False)
         # valid_dataset = RainDataset("./dataset", is_eval=True)
         train_dataset = RainDataset(opt, is_eval=False)
@@ -321,8 +324,10 @@ class trainer:
                 torch.save(self.net_D.state_dict(), save_path)
             else:
                 early_stop += 1
-                if early_stop > 10:
-                    print("early stop after 10 epochs without improvement :(")
+                if early_stop > self.early_stop:
+                    print(
+                        f"early stop after {self.early_stop} epochs without improvement :("
+                    )
                     break
             valid_loss_sum = 0.0
             if self.opt.scheduler:
