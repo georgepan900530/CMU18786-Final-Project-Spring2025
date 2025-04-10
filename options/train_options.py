@@ -82,7 +82,7 @@ class TrainOptions:
         self.parser.add_argument(
             "--early_stop",
             type=int,
-            default=10,
+            default=50,
             help="early stop after n epochs without improvement",
         )
         self.parser.add_argument(
