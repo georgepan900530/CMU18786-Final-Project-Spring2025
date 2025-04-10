@@ -105,8 +105,8 @@ def get_mask(dg_img, img):
     # avg? max?
     # mask = np.average(mask, axis=2)
     # mask = np.max(mask, axis=2)
-    mask = np.mean(mask, axis=2)
-    mask = np.expand_dims(mask, axis=2)
+    mask = np.mean(mask, axis=0)
+    mask = np.expand_dims(mask, axis=0)
     return mask
 
 
@@ -135,11 +135,11 @@ def torch_variable(x, is_train):
 
     if is_train:
         return Variable(
-            torch.from_numpy(np.array(x).transpose((0, 3, 1, 2))), requires_grad=True
+            torch.from_numpy(np.array(x)), requires_grad=True
         ).to(device)
     else:
         # Replace volatile=True with torch.no_grad()
         with torch.no_grad():
-            return Variable(torch.from_numpy(np.array(x).transpose((0, 3, 1, 2)))).to(
+            return Variable(torch.from_numpy(np.array(x))).to(
                 device
             )

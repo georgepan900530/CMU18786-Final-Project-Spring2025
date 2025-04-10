@@ -5,6 +5,8 @@ from torch.autograd import Variable
 import torch.utils.data as Data
 import torch.nn.functional as F
 import torchvision
+from torchvision import transforms
+from PIL import Image
 
 # Tools lib
 import numpy as np
@@ -29,6 +31,7 @@ def get_args():
     parser.add_argument("--input_dir", type=str)
     parser.add_argument("--output_dir", type=str)
     parser.add_argument("--gt_dir", type=str)
+    parser.add_argument("--local_conv", action="store_true", help="use local conv for transformer")
     parser.add_argument("--ckpt_path", type=str, default="./weights/baseline_gen.pkl")
     args = parser.parse_args()
     return args
@@ -45,16 +48,20 @@ def align_to_four(img):
 
 
 def predict(image):
-    image = np.array(image, dtype="float32") / 255.0
-    image = image.transpose((2, 0, 1))
-    image = image[np.newaxis, :, :, :]
-    image = torch.from_numpy(image)
-    image = Variable(image).cuda()
+    # img = np.array(image, dtype=np.float32)
+    # img = img.transpose((2, 0, 1))
+    # image = image[np.newaxis, :, :, :]
+    # image = torch.from_numpy(image)
+    # image = Variable(image).cuda()
+    img = transforms.Resize((224, 224))(image)
+    img = transforms.ToTensor()(img)
+    img = img.cuda()
+    img = img.unsqueeze(0)
+    out = model(img)[-1]
 
-    out = model(image)[-1]
-
-    out = out.cpu().data
-    out = out.numpy()
+    # out = out.cpu().data
+    # out = out.numpy()
+    out = out.detach().cpu().numpy()
     out = out.transpose((0, 2, 3, 1))
     out = out[0, :, :, :] * 255.0
 
@@ -67,7 +74,7 @@ if __name__ == "__main__":
     if args.model == "dsconv":
         model = DSConvGenerator().cuda()
     elif args.model == "transformer":
-        model = GeneratorWithTransformer().cuda()
+        model = GeneratorWithTransformer(local_conv=args.local_conv).cuda()
     else:
         model = Generator().cuda()
     model.load_state_dict(torch.load(args.ckpt_path))
@@ -82,19 +89,23 @@ if __name__ == "__main__":
         time_list = []
         for i in range(num):
             print("Processing image: %s" % (input_list[i]))
-            img = cv2.imread(os.path.join(args.input_dir, input_list[i]))
-            original_h, original_w = img.shape[:2]
-            img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_AREA)
+            # img = cv2.imread(os.path.join(args.input_dir, input_list[i]))
+            img = Image.open(os.path.join(args.input_dir, input_list[i])).convert("RGB")
+            width, height = img.size
+            # img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_AREA)
             # img = align_to_four(img)
             start_time = time.time()
             result = predict(img)
             end_time = time.time()
             print(f"Time taken for prediction: {end_time - start_time} seconds")
             time_list.append(end_time - start_time)
-            result = cv2.resize(result, (original_w, original_h))
+            result = result.astype(np.uint8)
+            result = Image.fromarray(result)
+            result = result.resize((width, height))
             img_name = input_list[i].split(".")[0]
             path = os.path.join(args.output_dir, img_name + ".jpg")
-            cv2.imwrite(path, result)
+            # cv2.imwrite(path, result)
+            result.save(path)
         print(f"Average time taken for prediction: {sum(time_list) / len(time_list)} seconds")
 
     elif args.mode == "test":
@@ -106,13 +117,17 @@ if __name__ == "__main__":
         cumulative_lpips = 0
         for i in range(num):
             print("Processing image: %s" % (input_list[i]))
-            img = cv2.imread(os.path.join(args.input_dir, input_list[i]))
-            gt = cv2.imread(os.path.join(args.gt_dir, gt_list[i]))
+            # img = cv2.imread(os.path.join(args.input_dir, input_list[i]))
+            img = Image.open(os.path.join(args.input_dir, input_list[i])).convert("RGB")
+            # gt = cv2.imread(os.path.join(args.gt_dir, gt_list[i]))
+            gt = Image.open(os.path.join(args.gt_dir, gt_list[i])).convert("RGB")
             # img = align_to_four(img) # (480, 720)
             # gt = align_to_four(gt) # (480, 720)
             # The input to the model is (224, 224)
-            img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_AREA)
-            gt = cv2.resize(gt, (224, 224), interpolation=cv2.INTER_AREA)
+            # img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_AREA)
+            # gt = cv2.resize(gt, (224, 224), interpolation=cv2.INTER_AREA)
+            gt = transforms.Resize((224, 224))(gt)
+            gt = np.array(gt, dtype=np.uint8)
             result = predict(img)
             result = np.array(result, dtype="uint8")
             cur_psnr = calc_psnr(result, gt)

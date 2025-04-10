@@ -513,9 +513,11 @@ class GeneratorWithTransformer(nn.Module):
             depth=12,
             mlp_dim=4096,
             dropout=0.0,
-            patch_size=8,
+            patch_size=16,
             local_conv=local_conv,
         )
+        for name, param in self.raindrop_decoder.params.items():
+            print(f"{name}: {param}")
 
     def forward(self, input):
         mask = self.raindrop_decoder(input)

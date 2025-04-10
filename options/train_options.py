@@ -85,6 +85,11 @@ class TrainOptions:
             default=10,
             help="early stop after n epochs without improvement",
         )
+        self.parser.add_argument(
+            "--transform",
+            action="store_true",
+            help="use data augmentation for training",
+        )
 
     def parse(self):
         if not self.initialized:

@@ -10,7 +10,7 @@ import torch.nn.functional as F
 import torchvision
 import cv2
 from loss import *
-
+from torchvision import transforms
 import numpy as np
 import cv2
 import random
@@ -67,8 +67,19 @@ class trainer:
         self.early_stop = opt.early_stop
         # train_dataset = RainDataset("./dataset", is_eval=False)
         # valid_dataset = RainDataset("./dataset", is_eval=True)
-        train_dataset = RainDataset(opt, is_eval=False)
-        valid_dataset = RainDataset(opt, is_eval=True)
+        if opt.transform:
+            print("Applying data augmentation")
+            transform = transforms.Compose([
+                transforms.Resize((224, 224)),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation(10),
+                transforms.RandomGrayscale(p=0.2),
+                transforms.ToTensor(),
+            ])
+        else:
+            transform = None
+        train_dataset = RainDataset(opt, is_eval=False, transform=transform)
+        valid_dataset = RainDataset(opt, is_eval=True, transform=transform)
         train_size = len(train_dataset)
         valid_size = len(valid_dataset)
         self.train_loader = DataLoader(
@@ -105,7 +116,7 @@ class trainer:
         # Perceptual Loss
         self.criterionPL = PerceptualLoss()
         # Multiscale Loss
-        self.criterionML = MultiscaleLoss(ld=[0.6, 0.8, 1.0], batch=self.batch_size)
+        self.criterionML = MultiscaleLoss(ld=[0.6, 0.8, 1.0])
         # MAP Loss
         self.criterionMAP = MAPLoss(gamma=0.05)
         # MSE Loss
@@ -173,9 +184,10 @@ class trainer:
             M_.append(get_mask(np.array(I_[i]), np.array(GT[i])))
         M_ = np.array(M_)
         M_ = torch_variable(M_, is_train)
-        I_ = torch_variable(I_, is_train)
-        GT_ = torch_variable(GT, is_train)
-
+        # I_ = torch_variable(I_, is_train)
+        # GT_ = torch_variable(GT, is_train)
+        GT_ = GT.to(self.device)
+        I_ = I_.to(self.device)
         A_, t1, t2, t3 = self.net_G(I_)
         # print 'mask len', len(A_)
         S_ = [t1, t2, t3]

@@ -1,0 +1,11 @@
+embed_dim: 1024
+num_heads: 6
+depth: 12
+mlp_dim: 4096
+dropout: 0.5
+local_conv: True
+img_size: (224, 224)
+patch_size: 8
+channels: 3
+Model type: transformer
+Applying data augmentation

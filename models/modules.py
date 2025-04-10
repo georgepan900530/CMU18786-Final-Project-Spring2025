@@ -203,7 +203,17 @@ class RainDropMaskDecoder(nn.Module):
         local_conv=False,
     ):
         super(RainDropMaskDecoder, self).__init__()
-
+        self.params = {
+            "embed_dim": embed_dim,
+            "num_heads": num_heads,
+            "depth": depth,
+            "mlp_dim": mlp_dim,
+            "dropout": dropout,
+            "local_conv": local_conv,
+            "img_size": img_size,
+            "patch_size": patch_size,
+            "channels": channels,
+        }        
         # Process image and patch sizes
         img_height, img_width = pair(img_size)
         patch_height, patch_width = pair(patch_size)
@@ -256,6 +266,7 @@ class RainDropMaskDecoder(nn.Module):
 
     def forward(self, x):
         # x shape: [batch_size, num_patches, embed_dim]
+        # print(x.shape)
         x = self.to_patch_embedding(x)
         x += self.pos_embedding
         x = self.transformer(x)
