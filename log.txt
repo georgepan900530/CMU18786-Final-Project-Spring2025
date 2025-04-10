@@ -1,11 +1,16 @@
-embed_dim: 768
+embed_dim: 512
 num_heads: 8
-depth: 8
-mlp_dim: 2048
-dropout: 0.1
+depth: 12
+mlp_dim: 4096
+dropout: 0.0
 local_conv: True
 img_size: (224, 224)
 patch_size: 8
 channels: 3
 Model type: transformer
 Applying data augmentation
+# train set : 861
+# eval set : 58
+Using cosine annealing scheduler
+Adjusting learning rate of group 0 to 5.0000e-04.
+Adjusting learning rate of group 0 to 5.0000e-04.

@@ -73,7 +73,7 @@ class trainer:
         self.early_stop = opt.early_stop
         # train_dataset = RainDataset("./dataset", is_eval=False)
         # valid_dataset = RainDataset("./dataset", is_eval=True)
-        if opt.transform:
+        if opt.aug:
             print("Applying data augmentation")
             transform = transforms.Compose([
                 transforms.Resize((224, 224)),

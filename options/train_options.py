@@ -16,6 +16,7 @@ class TrainOptions:
         self.opt = None
 
     def initialize(self):
+        # General
         self.parser.add_argument(
             "--model_type",
             type=str,
@@ -40,6 +41,8 @@ class TrainOptions:
             default=-1,
             help="epoch number which you want to load. use -1 for latest",
         )
+        
+        # Dataset
         self.parser.add_argument(
             "--train_dataset",
             type=str,
@@ -59,6 +62,13 @@ class TrainOptions:
             help="path to test dataset",
         )
         self.parser.add_argument(
+            "--aug",
+            action="store_true",
+            help="use data augmentation for training",
+        )
+        
+        # Training
+        self.parser.add_argument(
             "--lr", type=float, default=0.0005, help="learning rate"
         )
         self.parser.add_argument(
@@ -74,6 +84,12 @@ class TrainOptions:
             "--iter", type=int, default=200, help="number of iterations"
         )
         self.parser.add_argument("--batch_size", type=int, default=4, help="batch size")
+        self.parser.add_argument(
+            "--early_stop",
+            type=int,
+            default=50,
+            help="early stop after n epochs without improvement",
+        )
         
         # Transformer
         self.parser.add_argument(
@@ -117,17 +133,7 @@ class TrainOptions:
             action="store_true",
             help="use local conv for transformer",
         )
-        self.parser.add_argument(
-            "--early_stop",
-            type=int,
-            default=50,
-            help="early stop after n epochs without improvement",
-        )
-        self.parser.add_argument(
-            "--transform",
-            action="store_true",
-            help="use data augmentation for training",
-        )
+        
 
     def parse(self):
         if not self.initialized:
