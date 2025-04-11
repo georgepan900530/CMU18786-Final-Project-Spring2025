@@ -32,7 +32,7 @@ class trainer:
         self.opt = opt
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if opt.model_type == "baseline":
-            self.net_G = Generator().to(self.device)
+            self.net_G = DilatedGenerator().to(self.device)
             self.net_D = Discriminator().to(self.device)
         elif opt.model_type == "dsconv":
             self.net_G = DSConvGenerator().to(self.device)
@@ -253,13 +253,13 @@ class trainer:
                 )
 
                 # Generator loss (note: for WGAN we want to maximize D(G(z))
-                loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL + 0.1 * loss
+                loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL
             else:
                 # Standard GAN losses
                 loss_fake = self.criterionGAN(D_fake, is_real=False)
                 loss_real = self.criterionGAN(D_real, is_real=True)
                 loss_D = loss_real + loss_fake + loss_MAP
-                loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL + 0.1 * loss
+                loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL
 
             output = [loss_G, loss_D, loss_PL, loss_ML, loss_att, loss_MAP, loss]
         else:
