@@ -445,7 +445,16 @@ class DSConvGenerator(nn.Module):
 
 
 class GeneratorWithTransformer(nn.Module):
-    def __init__(self, embed_dim=1024, num_heads=8, depth=12, mlp_dim=4096, dropout=0.0, patch_size=16, local_conv=False):
+    def __init__(
+        self,
+        embed_dim=1024,
+        num_heads=8,
+        depth=12,
+        mlp_dim=4096,
+        dropout=0.0,
+        patch_size=16,
+        local_conv=False,
+    ):
         super(GeneratorWithTransformer, self).__init__()
         self.det_conv0 = nn.Sequential(nn.Conv2d(4, 32, 3, 1, 1), nn.ReLU())
         self.det_conv1 = nn.Sequential(
@@ -546,9 +555,8 @@ class GeneratorWithTransformer(nn.Module):
         x = self.conv10(x)
         x = self.output(x)
         return mask, frame1, frame2, x
-    
-    
-// ... existing code ...
+
+
 class DilatedGenerator(nn.Module):
     def __init__(self):
         super(DilatedGenerator, self).__init__()
@@ -678,12 +686,10 @@ if __name__ == "__main__":
     # print(mask_list[0].shape, frame1.shape, frame2.shape, x.shape)
     # mask_list, frame1, frame2, x = dsconv_generator(input)
     # print(mask_list[0].shape, frame1.shape, frame2.shape, x.shape)
-    generator = GeneratorWithTransformer()
-    img_path = (
-        "/mnt/project/CMU18786-Final-Project-Spring2025/dataset/train/data/1_rain.png"
-    )
+    generator = DilatedGenerator()
+    img_path = "./dataset/train/data/1_rain.png"
     input = cv2.imread(img_path)
     input = cv2.resize(input, (224, 224))
     input = torch.from_numpy(input).permute(2, 0, 1).unsqueeze(0).float() / 255.0
     mask, frame1, frame2, x = generator(input)
-    print(mask.shape, frame1.shape, frame2.shape, x.shape)
+    print(mask[0].shape, frame1.shape, frame2.shape, x.shape)
