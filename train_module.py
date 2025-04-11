@@ -45,7 +45,7 @@ class trainer:
                 mlp_dim=opt.mlp_dim,
                 dropout=opt.dropout,
                 patch_size=opt.patch_size,
-                local_conv=opt.local_conv
+                local_conv=opt.local_conv,
             ).to(self.device)
             self.net_D = Discriminator().to(self.device)
         print(f"Model type: {opt.model_type}")
@@ -75,16 +75,22 @@ class trainer:
         # valid_dataset = RainDataset("./dataset", is_eval=True)
         if opt.aug:
             print("Applying data augmentation")
-            transform = transforms.Compose([
-                transforms.Resize((224, 224)),
-                # Apply non-flipping transforms so that we dont need to do the same for the ground truth
-                transforms.RandomGrayscale(p=0.2),
-                transforms.ToTensor(),
-            ])
+            transform = transforms.Compose(
+                [
+                    transforms.Resize((224, 224)),
+                    # Apply non-flipping transforms so that we dont need to do the same for the ground truth
+                    transforms.RandomGrayscale(p=0.2),
+                    transforms.ToTensor(),
+                ]
+            )
         else:
             transform = None
-        train_dataset = RainDataset(opt, is_eval=False, transform=transform, horizontal_flip=True)
-        valid_dataset = RainDataset(opt, is_eval=True, transform=transform, horizontal_flip=False)
+        train_dataset = RainDataset(
+            opt, is_eval=False, transform=transform, horizontal_flip=True
+        )
+        valid_dataset = RainDataset(
+            opt, is_eval=True, transform=transform, horizontal_flip=False
+        )
         train_size = len(train_dataset)
         valid_size = len(valid_dataset)
         self.train_loader = DataLoader(
@@ -247,13 +253,13 @@ class trainer:
                 )
 
                 # Generator loss (note: for WGAN we want to maximize D(G(z))
-                loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL
+                loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL + 0.1 * loss
             else:
                 # Standard GAN losses
                 loss_fake = self.criterionGAN(D_fake, is_real=False)
                 loss_real = self.criterionGAN(D_real, is_real=True)
                 loss_D = loss_real + loss_fake + loss_MAP
-                loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL
+                loss_G = 0.01 * (-loss_fake) + loss_att + loss_ML + loss_PL + 0.1 * loss
 
             output = [loss_G, loss_D, loss_PL, loss_ML, loss_att, loss_MAP, loss]
         else:
