@@ -8,7 +8,7 @@ import glob
 import torch
 
 class RainDataset(Dataset):
-    def __init__(self, opt, is_eval=False, is_test=False, transform=None):
+    def __init__(self, opt, is_eval=False, is_test=False, transform=None, horizontal_flip=False):
         super(RainDataset, self).__init__()
 
         if is_test:
@@ -27,6 +27,8 @@ class RainDataset(Dataset):
             ])
         else:
             self.transform = transform
+        self.horizontal_flip = horizontal_flip
+        
     def __len__(self):
         return len(self.img_list)
 
@@ -47,9 +49,17 @@ class RainDataset(Dataset):
         # gt = torch.from_numpy(gt)
         img = Image.open(img_name).convert("RGB")
         gt = Image.open(gt_name).convert("RGB")
+        
+        # Apply transforms
+        if self.horizontal_flip:
+            p = np.random.rand()
+            if p > 0.5:
+                img = img.transpose(Image.FLIP_LEFT_RIGHT)
+                gt = gt.transpose(Image.FLIP_LEFT_RIGHT)
         img = self.transform(img)
         gt = transforms.Resize((224, 224))(gt)
         gt = transforms.ToTensor()(gt)
+        
         # img = np.asarray(img).transpose((2,0,1))
         # gt = np.asarray(gt).transpose((2,0,1))
 

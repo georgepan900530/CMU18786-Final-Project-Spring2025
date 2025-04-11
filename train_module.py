@@ -77,13 +77,14 @@ class trainer:
             print("Applying data augmentation")
             transform = transforms.Compose([
                 transforms.Resize((224, 224)),
-                transforms.RandomHorizontalFlip(),
+                # Apply non-flipping transforms so that we dont need to do the same for the ground truth
+                transforms.RandomGrayscale(p=0.2),
                 transforms.ToTensor(),
             ])
         else:
             transform = None
-        train_dataset = RainDataset(opt, is_eval=False, transform=transform)
-        valid_dataset = RainDataset(opt, is_eval=True, transform=transform)
+        train_dataset = RainDataset(opt, is_eval=False, transform=transform, horizontal_flip=True)
+        valid_dataset = RainDataset(opt, is_eval=True, transform=transform, horizontal_flip=False)
         train_size = len(train_dataset)
         valid_size = len(valid_dataset)
         self.train_loader = DataLoader(
@@ -190,8 +191,8 @@ class trainer:
         M_ = torch_variable(M_, is_train)
         # I_ = torch_variable(I_, is_train)
         # GT_ = torch_variable(GT, is_train)
-        GT_ = GT.to(self.device)
-        I_ = I_.to(self.device)
+        GT_ = Variable(GT, requires_grad=is_train).to(self.device)
+        I_ = Variable(I_, requires_grad=is_train).to(self.device)
         A_, t1, t2, t3 = self.net_G(I_)
         # print 'mask len', len(A_)
         S_ = [t1, t2, t3]

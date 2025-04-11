@@ -1,91 +1,180 @@
-Checkpoint directory ./weights/transformer_wasserstein_aug/ does not exist. Creating it now...
-embed_dim: 1024
-num_heads: 10
-depth: 12
-mlp_dim: 4096
-dropout: 0.0
-local_conv: False
-img_size: (224, 224)
-patch_size: 16
-channels: 3
-Model type: transformer
+Model type: baseline
 Applying data augmentation
 # train set : 861
 # eval set : 58
 Using cosine annealing scheduler
 Adjusting learning rate of group 0 to 5.0000e-04.
 Adjusting learning rate of group 0 to 5.0000e-04.
-epoch: -1 count: 20 loss G: 0.6724 loss_D: 10.0894 loss_MSE: 0.0749
-loss_PL:0.3847 loss_ML:0.0482 loss_Att:0.2494 loss_MAP:0.1029
-epoch: -1 count: 40 loss G: 0.5532 loss_D: 10.0072 loss_MSE: 0.0437
-loss_PL:0.3171 loss_ML:0.0340 loss_Att:0.2022 loss_MAP:0.0073
-epoch: -1 count: 60 loss G: 0.3919 loss_D: 10.0034 loss_MSE: 0.0372
-loss_PL:0.1927 loss_ML:0.0288 loss_Att:0.1703 loss_MAP:0.0035
-epoch: -1 count: 80 loss G: 0.6395 loss_D: 9.9373 loss_MSE: 0.2596
-loss_PL:0.3032 loss_ML:0.1641 loss_Att:0.1820 loss_MAP:0.0043
-epoch: -1 count: 100 loss G: 0.5176 loss_D: 9.9985 loss_MSE: 0.0440
-loss_PL:0.3018 loss_ML:0.0266 loss_Att:0.1992 loss_MAP:0.0041
-epoch: -1 count: 120 loss G: 0.4354 loss_D: 10.0485 loss_MSE: 0.0332
-loss_PL:0.2479 loss_ML:0.0250 loss_Att:0.1726 loss_MAP:0.0485
-epoch: -1 count: 140 loss G: 0.5782 loss_D: 9.7990 loss_MSE: 0.0449
-loss_PL:0.3475 loss_ML:0.0311 loss_Att:0.2042 loss_MAP:0.0034
-epoch: -1 count: 160 loss G: 0.4651 loss_D: 10.0211 loss_MSE: 0.0335
-loss_PL:0.2528 loss_ML:0.0199 loss_Att:0.1923 loss_MAP:0.0211
-epoch: -1 count: 180 loss G: 0.5030 loss_D: 10.0087 loss_MSE: 0.0281
-loss_PL:0.3052 loss_ML:0.0194 loss_Att:0.1784 loss_MAP:0.0087
-epoch: -1 count: 200 loss G: 0.4541 loss_D: 10.0078 loss_MSE: 0.0293
-loss_PL:0.2327 loss_ML:0.0176 loss_Att:0.2038 loss_MAP:0.0079
-epoch_-1 valid_loss: 0.0308
+epoch: -1 count: 20 loss G: 0.5510 loss_D: 0.8420 loss_MSE: 0.0327
+loss_PL:0.2212 loss_ML:0.0525 loss_Att:0.2838 loss_MAP:0.0210
+epoch: -1 count: 40 loss G: 0.6537 loss_D: 1.3721 loss_MSE: 0.0207
+loss_PL:0.2127 loss_ML:0.0239 loss_Att:0.4234 loss_MAP:0.0010
+epoch: -1 count: 60 loss G: 0.6092 loss_D: 1.3852 loss_MSE: 0.0171
+loss_PL:0.1943 loss_ML:0.0163 loss_Att:0.4056 loss_MAP:0.0006
+epoch: -1 count: 80 loss G: 0.5519 loss_D: 1.3890 loss_MSE: 0.0150
+loss_PL:0.1801 loss_ML:0.0253 loss_Att:0.3530 loss_MAP:0.0012
+epoch: -1 count: 100 loss G: 0.3917 loss_D: 1.3876 loss_MSE: 0.0113
+loss_PL:0.1426 loss_ML:0.0114 loss_Att:0.2445 loss_MAP:0.0015
+epoch: -1 count: 120 loss G: 0.4260 loss_D: 1.3886 loss_MSE: 0.0157
+loss_PL:0.1491 loss_ML:0.0144 loss_Att:0.2697 loss_MAP:0.0019
+epoch: -1 count: 140 loss G: 0.2791 loss_D: 1.3861 loss_MSE: 0.0150
+loss_PL:0.0990 loss_ML:0.0174 loss_Att:0.1697 loss_MAP:0.0011
+epoch: -1 count: 160 loss G: 0.4717 loss_D: 1.3880 loss_MSE: 0.0160
+loss_PL:0.1313 loss_ML:0.0183 loss_Att:0.3289 loss_MAP:0.0012
+epoch: -1 count: 180 loss G: 0.5011 loss_D: 1.3872 loss_MSE: 0.0161
+loss_PL:0.1808 loss_ML:0.0123 loss_Att:0.3148 loss_MAP:0.0009
+epoch: -1 count: 200 loss G: 0.3596 loss_D: 1.3864 loss_MSE: 0.0104
+loss_PL:0.1104 loss_ML:0.0084 loss_Att:0.2477 loss_MAP:0.0006
+epoch_-1 valid_loss: 0.0125
 save model !!!!!!!!!!
 Adjusting learning rate of group 0 to 4.9997e-04.
 Adjusting learning rate of group 0 to 4.9997e-04.
-epoch: 0 count: 220 loss G: 0.5774 loss_D: 10.0141 loss_MSE: 0.0378
-loss_PL:0.3339 loss_ML:0.0259 loss_Att:0.2277 loss_MAP:0.0141
-epoch: 0 count: 240 loss G: 0.3848 loss_D: 10.0038 loss_MSE: 0.0269
-loss_PL:0.2106 loss_ML:0.0161 loss_Att:0.1681 loss_MAP:0.0038
-epoch: 0 count: 260 loss G: 0.4404 loss_D: 10.0043 loss_MSE: 0.0260
-loss_PL:0.2690 loss_ML:0.0170 loss_Att:0.1644 loss_MAP:0.0043
-epoch: 0 count: 280 loss G: 0.3879 loss_D: 10.0032 loss_MSE: 0.0359
-loss_PL:0.2075 loss_ML:0.0223 loss_Att:0.1680 loss_MAP:0.0032
-epoch: 0 count: 300 loss G: 0.4988 loss_D: 10.0029 loss_MSE: 0.0338
-loss_PL:0.2621 loss_ML:0.0207 loss_Att:0.2260 loss_MAP:0.0029
-epoch: 0 count: 320 loss G: 0.6520 loss_D: 10.0042 loss_MSE: 0.1017
-loss_PL:0.3350 loss_ML:0.0812 loss_Att:0.2458 loss_MAP:0.0042
-epoch: 0 count: 340 loss G: 0.4934 loss_D: 10.0027 loss_MSE: 0.0438
-loss_PL:0.2760 loss_ML:0.0334 loss_Att:0.1940 loss_MAP:0.0027
-epoch: 0 count: 360 loss G: 0.4360 loss_D: 10.0038 loss_MSE: 0.0302
-loss_PL:0.2498 loss_ML:0.0188 loss_Att:0.1774 loss_MAP:0.0038
-epoch: 0 count: 380 loss G: 0.3754 loss_D: 10.0029 loss_MSE: 0.0328
-loss_PL:0.1884 loss_ML:0.0210 loss_Att:0.1760 loss_MAP:0.0029
-epoch: 0 count: 400 loss G: 0.5745 loss_D: 10.0035 loss_MSE: 0.0392
-loss_PL:0.3367 loss_ML:0.0236 loss_Att:0.2242 loss_MAP:0.0035
-epoch: 0 count: 420 loss G: 0.3917 loss_D: 10.0031 loss_MSE: 0.0234
-loss_PL:0.2084 loss_ML:0.0155 loss_Att:0.1778 loss_MAP:0.0031
-epoch_0 valid_loss: 0.0374
+epoch: 0 count: 220 loss G: 0.4453 loss_D: 1.3840 loss_MSE: 0.0146
+loss_PL:0.1392 loss_ML:0.0170 loss_Att:0.2959 loss_MAP:0.0012
+epoch: 0 count: 240 loss G: 0.4401 loss_D: 1.1094 loss_MSE: 0.0135
+loss_PL:0.1040 loss_ML:0.0122 loss_Att:0.3307 loss_MAP:0.0034
+epoch: 0 count: 260 loss G: 0.4340 loss_D: 1.3633 loss_MSE: 0.0163
+loss_PL:0.1399 loss_ML:0.0191 loss_Att:0.2825 loss_MAP:0.0116
+epoch: 0 count: 280 loss G: 0.4816 loss_D: 3.1125 loss_MSE: 0.0117
+loss_PL:0.1461 loss_ML:0.0100 loss_Att:0.3564 loss_MAP:0.0190
+epoch: 0 count: 300 loss G: 0.3685 loss_D: 1.3872 loss_MSE: 0.0104
+loss_PL:0.0925 loss_ML:0.0079 loss_Att:0.2752 loss_MAP:0.0053
+epoch: 0 count: 320 loss G: 0.5381 loss_D: 1.3923 loss_MSE: 0.0154
+loss_PL:0.1344 loss_ML:0.0107 loss_Att:0.3996 loss_MAP:0.0035
+epoch: 0 count: 340 loss G: 0.4704 loss_D: 1.3923 loss_MSE: 0.0126
+loss_PL:0.1329 loss_ML:0.0099 loss_Att:0.3344 loss_MAP:0.0058
+epoch: 0 count: 360 loss G: 0.2575 loss_D: 0.9404 loss_MSE: 0.0083
+loss_PL:0.0634 loss_ML:0.0092 loss_Att:0.1913 loss_MAP:0.0112
+epoch: 0 count: 380 loss G: 0.4060 loss_D: 1.3432 loss_MSE: 0.0154
+loss_PL:0.1163 loss_ML:0.0091 loss_Att:0.2880 loss_MAP:0.0039
+epoch: 0 count: 400 loss G: 0.3818 loss_D: 1.3715 loss_MSE: 0.0126
+loss_PL:0.1582 loss_ML:0.0091 loss_Att:0.2219 loss_MAP:0.0019
+epoch: 0 count: 420 loss G: 0.4076 loss_D: 1.3869 loss_MSE: 0.0091
+loss_PL:0.1303 loss_ML:0.0072 loss_Att:0.2769 loss_MAP:0.0004
+epoch_0 valid_loss: 0.0185
 Adjusting learning rate of group 0 to 4.9988e-04.
 Adjusting learning rate of group 0 to 4.9988e-04.
-epoch: 1 count: 440 loss G: 0.5035 loss_D: 10.0028 loss_MSE: 0.0444
-loss_PL:0.2729 loss_ML:0.0277 loss_Att:0.2130 loss_MAP:0.0028
-epoch: 1 count: 460 loss G: 0.2625 loss_D: 10.0031 loss_MSE: 0.0131
-loss_PL:0.1196 loss_ML:0.0087 loss_Att:0.1443 loss_MAP:0.0031
-epoch: 1 count: 480 loss G: 0.4835 loss_D: 10.0025 loss_MSE: 0.0626
-loss_PL:0.2393 loss_ML:0.0376 loss_Att:0.2167 loss_MAP:0.0025
-epoch: 1 count: 500 loss G: 0.4503 loss_D: 10.0029 loss_MSE: 0.0401
-loss_PL:0.2443 loss_ML:0.0258 loss_Att:0.1903 loss_MAP:0.0029
-epoch: 1 count: 520 loss G: 0.3047 loss_D: 10.0032 loss_MSE: 0.0158
-loss_PL:0.1544 loss_ML:0.0115 loss_Att:0.1488 loss_MAP:0.0032
-epoch: 1 count: 540 loss G: 0.6305 loss_D: 10.0081 loss_MSE: 0.0393
-loss_PL:0.3990 loss_ML:0.0225 loss_Att:0.2090 loss_MAP:0.0081
-epoch: 1 count: 560 loss G: 0.4284 loss_D: 10.0032 loss_MSE: 0.0250
-loss_PL:0.2251 loss_ML:0.0166 loss_Att:0.1867 loss_MAP:0.0032
-epoch: 1 count: 580 loss G: 0.4718 loss_D: 10.0028 loss_MSE: 0.0295
-loss_PL:0.2609 loss_ML:0.0198 loss_Att:0.1911 loss_MAP:0.0028
-epoch: 1 count: 600 loss G: 0.4554 loss_D: 10.0038 loss_MSE: 0.0290
-loss_PL:0.2524 loss_ML:0.0199 loss_Att:0.1831 loss_MAP:0.0038
-epoch: 1 count: 620 loss G: 0.4706 loss_D: 10.0030 loss_MSE: 0.0291
-loss_PL:0.2690 loss_ML:0.0186 loss_Att:0.1831 loss_MAP:0.0030
-epoch: 1 count: 640 loss G: 0.5046 loss_D: 10.0027 loss_MSE: 0.0359
-loss_PL:0.2747 loss_ML:0.0220 loss_Att:0.2078 loss_MAP:0.0027
-epoch_1 valid_loss: 0.0472
+epoch: 1 count: 440 loss G: 0.3630 loss_D: 1.3896 loss_MSE: 0.0173
+loss_PL:0.0879 loss_ML:0.0215 loss_Att:0.2604 loss_MAP:0.0031
+epoch: 1 count: 460 loss G: 0.4182 loss_D: 1.3875 loss_MSE: 0.0117
+loss_PL:0.1197 loss_ML:0.0134 loss_Att:0.2919 loss_MAP:0.0011
+epoch: 1 count: 480 loss G: 0.5281 loss_D: 1.3881 loss_MSE: 0.0173
+loss_PL:0.1344 loss_ML:0.0181 loss_Att:0.3822 loss_MAP:0.0007
+epoch: 1 count: 500 loss G: 0.3632 loss_D: 1.4019 loss_MSE: 0.0112
+loss_PL:0.1075 loss_ML:0.0089 loss_Att:0.2530 loss_MAP:0.0013
+epoch: 1 count: 520 loss G: 0.4537 loss_D: 1.3959 loss_MSE: 0.0128
+loss_PL:0.1261 loss_ML:0.0104 loss_Att:0.3234 loss_MAP:0.0020
+epoch: 1 count: 540 loss G: 0.2700 loss_D: 1.1990 loss_MSE: 0.0086
+loss_PL:0.0738 loss_ML:0.0070 loss_Att:0.1943 loss_MAP:0.0067
+epoch: 1 count: 560 loss G: 0.3575 loss_D: 0.5059 loss_MSE: 0.0125
+loss_PL:0.1050 loss_ML:0.0082 loss_Att:0.2487 loss_MAP:0.0466
+epoch: 1 count: 580 loss G: 0.2927 loss_D: 0.8132 loss_MSE: 0.0089
+loss_PL:0.0936 loss_ML:0.0099 loss_Att:0.1942 loss_MAP:0.0048
+epoch: 1 count: 600 loss G: 0.4931 loss_D: 0.9585 loss_MSE: 0.0109
+loss_PL:0.1694 loss_ML:0.0077 loss_Att:0.3193 loss_MAP:0.0126
+epoch: 1 count: 620 loss G: 0.4157 loss_D: 0.7352 loss_MSE: 0.0089
+loss_PL:0.1287 loss_ML:0.0066 loss_Att:0.2850 loss_MAP:0.0321
+epoch: 1 count: 640 loss G: 0.5924 loss_D: 1.3290 loss_MSE: 0.0140
+loss_PL:0.2344 loss_ML:0.0099 loss_Att:0.3548 loss_MAP:0.0017
+epoch_1 valid_loss: 0.0055
+save model !!!!!!!!!!
 Adjusting learning rate of group 0 to 4.9972e-04.
 Adjusting learning rate of group 0 to 4.9972e-04.
+epoch: 2 count: 660 loss G: 0.4571 loss_D: 1.3112 loss_MSE: 0.0160
+loss_PL:0.1290 loss_ML:0.0112 loss_Att:0.3212 loss_MAP:0.0071
+epoch: 2 count: 680 loss G: 0.3713 loss_D: 0.9346 loss_MSE: 0.0112
+loss_PL:0.1389 loss_ML:0.0091 loss_Att:0.2271 loss_MAP:0.0031
+epoch: 2 count: 700 loss G: 0.3864 loss_D: 1.3319 loss_MSE: 0.0115
+loss_PL:0.1423 loss_ML:0.0080 loss_Att:0.2410 loss_MAP:0.0031
+epoch: 2 count: 720 loss G: 0.3644 loss_D: 1.4658 loss_MSE: 0.0075
+loss_PL:0.1623 loss_ML:0.0059 loss_Att:0.2008 loss_MAP:0.0025
+epoch: 2 count: 740 loss G: 0.4127 loss_D: 1.3973 loss_MSE: 0.0189
+loss_PL:0.1136 loss_ML:0.0130 loss_Att:0.2921 loss_MAP:0.0031
+epoch: 2 count: 760 loss G: 0.3442 loss_D: 1.1946 loss_MSE: 0.0078
+loss_PL:0.1409 loss_ML:0.0058 loss_Att:0.2033 loss_MAP:0.0022
+epoch: 2 count: 780 loss G: 0.2918 loss_D: 0.9978 loss_MSE: 0.0057
+loss_PL:0.0979 loss_ML:0.0058 loss_Att:0.1924 loss_MAP:0.0051
+epoch: 2 count: 800 loss G: 0.3831 loss_D: 0.7588 loss_MSE: 0.0118
+loss_PL:0.1174 loss_ML:0.0093 loss_Att:0.2611 loss_MAP:0.0437
+epoch: 2 count: 820 loss G: 0.4873 loss_D: 0.8668 loss_MSE: 0.0099
+loss_PL:0.1268 loss_ML:0.0085 loss_Att:0.3569 loss_MAP:0.0055
+epoch: 2 count: 840 loss G: 0.4161 loss_D: 1.2026 loss_MSE: 0.0089
+loss_PL:0.1460 loss_ML:0.0077 loss_Att:0.2674 loss_MAP:0.0033
+epoch: 2 count: 860 loss G: 0.3310 loss_D: 0.9988 loss_MSE: 0.0061
+loss_PL:0.0849 loss_ML:0.0050 loss_Att:0.2439 loss_MAP:0.0083
+epoch_2 valid_loss: 0.0075
+Adjusting learning rate of group 0 to 4.9951e-04.
+Adjusting learning rate of group 0 to 4.9951e-04.
+epoch: 3 count: 880 loss G: 0.2777 loss_D: 1.3902 loss_MSE: 0.0073
+loss_PL:0.0827 loss_ML:0.0084 loss_Att:0.1922 loss_MAP:0.0015
+epoch: 3 count: 900 loss G: 0.2881 loss_D: 1.2610 loss_MSE: 0.0065
+loss_PL:0.0786 loss_ML:0.0059 loss_Att:0.2071 loss_MAP:0.0031
+epoch: 3 count: 920 loss G: 0.2971 loss_D: 0.7973 loss_MSE: 0.0090
+loss_PL:0.1033 loss_ML:0.0073 loss_Att:0.1906 loss_MAP:0.0064
+epoch: 3 count: 940 loss G: 0.4286 loss_D: 1.4506 loss_MSE: 0.0101
+loss_PL:0.1403 loss_ML:0.0074 loss_Att:0.2831 loss_MAP:0.0030
+epoch: 3 count: 960 loss G: 0.3119 loss_D: 1.1645 loss_MSE: 0.0066
+loss_PL:0.1038 loss_ML:0.0048 loss_Att:0.2135 loss_MAP:0.1254
+epoch: 3 count: 980 loss G: 0.3809 loss_D: 1.2882 loss_MSE: 0.0096
+loss_PL:0.1433 loss_ML:0.0085 loss_Att:0.2326 loss_MAP:0.0232
+epoch: 3 count: 1000 loss G: 0.2483 loss_D: 1.0572 loss_MSE: 0.0071
+loss_PL:0.0915 loss_ML:0.0046 loss_Att:0.1589 loss_MAP:0.0033
+epoch: 3 count: 1020 loss G: 0.3022 loss_D: 1.3822 loss_MSE: 0.0136
+loss_PL:0.0851 loss_ML:0.0115 loss_Att:0.2179 loss_MAP:0.0070
+epoch: 3 count: 1040 loss G: 0.3947 loss_D: 1.1879 loss_MSE: 0.0094
+loss_PL:0.1120 loss_ML:0.0065 loss_Att:0.2818 loss_MAP:0.0040
+epoch: 3 count: 1060 loss G: 0.4469 loss_D: 0.9440 loss_MSE: 0.0092
+loss_PL:0.1383 loss_ML:0.0078 loss_Att:0.3048 loss_MAP:0.0022
+epoch: 3 count: 1080 loss G: 0.5270 loss_D: 0.4231 loss_MSE: 0.0153
+loss_PL:0.2714 loss_ML:0.0424 loss_Att:0.2170 loss_MAP:0.0051
+epoch_3 valid_loss: 0.0608
+Adjusting learning rate of group 0 to 4.9923e-04.
+Adjusting learning rate of group 0 to 4.9923e-04.
+epoch: 4 count: 1100 loss G: 0.2141 loss_D: 1.0591 loss_MSE: 0.0050
+loss_PL:0.0597 loss_ML:0.0039 loss_Att:0.1568 loss_MAP:0.0123
+epoch: 4 count: 1120 loss G: 0.3464 loss_D: 0.9515 loss_MSE: 0.0076
+loss_PL:0.1228 loss_ML:0.0050 loss_Att:0.2226 loss_MAP:0.0100
+epoch: 4 count: 1140 loss G: 0.3884 loss_D: 0.9265 loss_MSE: 0.0086
+loss_PL:0.1302 loss_ML:0.0061 loss_Att:0.2582 loss_MAP:0.0042
+epoch: 4 count: 1160 loss G: 0.2855 loss_D: 1.5394 loss_MSE: 0.0076
+loss_PL:0.0899 loss_ML:0.0050 loss_Att:0.1922 loss_MAP:0.0032
+epoch: 4 count: 1180 loss G: 0.3746 loss_D: 0.4611 loss_MSE: 0.0118
+loss_PL:0.0974 loss_ML:0.0099 loss_Att:0.2708 loss_MAP:0.0057
+epoch: 4 count: 1200 loss G: 0.3443 loss_D: 1.1851 loss_MSE: 0.0148
+loss_PL:0.1320 loss_ML:0.0077 loss_Att:0.2102 loss_MAP:0.0025
+epoch: 4 count: 1220 loss G: 0.2645 loss_D: 1.4011 loss_MSE: 0.0067
+loss_PL:0.0738 loss_ML:0.0048 loss_Att:0.1908 loss_MAP:0.0022
+epoch: 4 count: 1240 loss G: 0.3367 loss_D: 0.8896 loss_MSE: 0.0060
+loss_PL:0.1112 loss_ML:0.0047 loss_Att:0.2250 loss_MAP:0.0290
+epoch: 4 count: 1260 loss G: 0.3515 loss_D: 1.2098 loss_MSE: 0.0210
+loss_PL:0.1032 loss_ML:0.0143 loss_Att:0.2385 loss_MAP:0.0043
+epoch: 4 count: 1280 loss G: 0.3243 loss_D: 1.1997 loss_MSE: 0.0092
+loss_PL:0.1005 loss_ML:0.0064 loss_Att:0.2218 loss_MAP:0.0023
+epoch_4 valid_loss: 0.0402
+Adjusting learning rate of group 0 to 4.9889e-04.
+Adjusting learning rate of group 0 to 4.9889e-04.
+epoch: 5 count: 1300 loss G: 0.2720 loss_D: 1.3411 loss_MSE: 0.0122
+loss_PL:0.0779 loss_ML:0.0176 loss_Att:0.1807 loss_MAP:0.0022
+epoch: 5 count: 1320 loss G: 0.3228 loss_D: 1.0201 loss_MSE: 0.0078
+loss_PL:0.1331 loss_ML:0.0056 loss_Att:0.1870 loss_MAP:0.0044
+epoch: 5 count: 1340 loss G: -0.0733 loss_D: 51.3811 loss_MSE: 0.0093
+loss_PL:0.0858 loss_ML:0.0080 loss_Att:0.3440 loss_MAP:0.0444
+epoch: 5 count: 1360 loss G: 0.3275 loss_D: 1.4015 loss_MSE: 0.0053
+loss_PL:0.1333 loss_ML:0.0050 loss_Att:0.1953 loss_MAP:0.0023
+epoch: 5 count: 1380 loss G: 0.3633 loss_D: 1.1831 loss_MSE: 0.0103
+loss_PL:0.1327 loss_ML:0.0063 loss_Att:0.2301 loss_MAP:0.0061
+epoch: 5 count: 1400 loss G: 0.3894 loss_D: 0.9899 loss_MSE: 0.0117
+loss_PL:0.1050 loss_ML:0.0080 loss_Att:0.2825 loss_MAP:0.0085
+epoch: 5 count: 1420 loss G: 0.3767 loss_D: 1.3607 loss_MSE: 0.0094
+loss_PL:0.1524 loss_ML:0.0066 loss_Att:0.2230 loss_MAP:0.2773
+epoch: 5 count: 1440 loss G: 0.2538 loss_D: 1.2741 loss_MSE: 0.0045
+loss_PL:0.0924 loss_ML:0.0033 loss_Att:0.1615 loss_MAP:0.0031
+epoch: 5 count: 1460 loss G: 0.2902 loss_D: 0.5957 loss_MSE: 0.0068
+loss_PL:0.1050 loss_ML:0.0056 loss_Att:0.1849 loss_MAP:0.0720
+epoch: 5 count: 1480 loss G: 0.4414 loss_D: 0.8647 loss_MSE: 0.0086
+loss_PL:0.1558 loss_ML:0.0063 loss_Att:0.2841 loss_MAP:0.0342
+epoch: 5 count: 1500 loss G: 0.3150 loss_D: 1.0219 loss_MSE: 0.0078
+loss_PL:0.1104 loss_ML:0.0053 loss_Att:0.2032 loss_MAP:0.0040
+epoch_5 valid_loss: 0.0108
+Adjusting learning rate of group 0 to 4.9849e-04.
+Adjusting learning rate of group 0 to 4.9849e-04.
