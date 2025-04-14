@@ -86,7 +86,6 @@ if __name__ == "__main__":
     if args.mode == "demo":
         input_list = sorted(os.listdir(args.input_dir))
         num = len(input_list)
-        time_list = []
         for i in range(num):
             print("Processing image: %s" % (input_list[i]))
             # img = cv2.imread(os.path.join(args.input_dir, input_list[i]))
@@ -94,11 +93,7 @@ if __name__ == "__main__":
             width, height = img.size
             # img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_AREA)
             # img = align_to_four(img)
-            start_time = time.time()
             result = predict(img)
-            end_time = time.time()
-            print(f"Time taken for prediction: {end_time - start_time} seconds")
-            time_list.append(end_time - start_time)
             result = result.astype(np.uint8)
             result = Image.fromarray(result)
             result = result.resize((width, height))
@@ -115,6 +110,7 @@ if __name__ == "__main__":
         cumulative_psnr = 0
         cumulative_ssim = 0
         cumulative_lpips = 0
+        time_list = []
         for i in range(num):
             print("Processing image: %s" % (input_list[i]))
             # img = cv2.imread(os.path.join(args.input_dir, input_list[i]))
@@ -128,7 +124,11 @@ if __name__ == "__main__":
             # gt = cv2.resize(gt, (224, 224), interpolation=cv2.INTER_AREA)
             gt = transforms.Resize((224, 224))(gt)
             gt = np.array(gt, dtype=np.uint8)
+            start_time = time.time()
             result = predict(img)
+            end_time = time.time()
+            print(f"Time taken for prediction: {end_time - start_time} seconds")
+            time_list.append(end_time - start_time)
             result = np.array(result, dtype="uint8")
             cur_psnr = calc_psnr(result, gt)
             cur_ssim = calc_ssim(result, gt)
@@ -144,6 +144,7 @@ if __name__ == "__main__":
             "In testing dataset, PSNR is %.4f and SSIM is %.4f and LPIPS is %.4f"
             % (cumulative_psnr / num, cumulative_ssim / num, cumulative_lpips / num)
         )
+        print(f"Average time taken for prediction: {sum(time_list) / len(time_list)} seconds")
 
     else:
         print("Mode Invalid!")
