@@ -124,6 +124,8 @@ class trainer:
         elif opt.gan_loss == "wasserstein":
             self.criterionGAN = AdvancedGANLoss(mode="wasserstein")
             self.lambda_gp = 10.0
+        else:
+            raise ValueError(f"Invalid GAN loss type: {opt.gan_loss}")
         # Perceptual Loss
         self.criterionPL = PerceptualLoss()
         # Multiscale Loss

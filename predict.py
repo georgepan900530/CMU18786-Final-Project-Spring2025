@@ -79,11 +79,11 @@ if __name__ == "__main__":
         model = Generator().cuda()
     model.load_state_dict(torch.load(args.ckpt_path))
     model.eval()
-    if not os.path.exists(args.output_dir):
-        print("Output directory does not exist. Creating it now...")
-        os.makedirs(args.output_dir)
 
     if args.mode == "demo":
+        if not os.path.exists(args.output_dir):
+            print("Output directory does not exist. Creating it now...")
+            os.makedirs(args.output_dir)
         input_list = sorted(os.listdir(args.input_dir))
         num = len(input_list)
         for i in range(num):
