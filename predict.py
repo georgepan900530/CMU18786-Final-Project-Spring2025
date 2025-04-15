@@ -17,6 +17,7 @@ import os
 import argparse
 import os
 import time
+
 # Models lib
 from models import *
 
@@ -26,12 +27,16 @@ from metrics import calc_psnr, calc_ssim, calc_lpips
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str, default="baseline", help="baseline, dsconv, transformer")
+    parser.add_argument(
+        "--model", type=str, default="baseline", help="baseline, dsconv, transformer"
+    )
     parser.add_argument("--mode", type=str)
     parser.add_argument("--input_dir", type=str)
     parser.add_argument("--output_dir", type=str)
     parser.add_argument("--gt_dir", type=str)
-    parser.add_argument("--local_conv", action="store_true", help="use local conv for transformer")
+    parser.add_argument(
+        "--local_conv", action="store_true", help="use local conv for transformer"
+    )
     parser.add_argument("--ckpt_path", type=str, default="./weights/baseline_gen.pkl")
     args = parser.parse_args()
     return args
@@ -101,7 +106,6 @@ if __name__ == "__main__":
             path = os.path.join(args.output_dir, img_name + ".jpg")
             # cv2.imwrite(path, result)
             result.save(path)
-        print(f"Average time taken for prediction: {sum(time_list) / len(time_list)} seconds")
 
     elif args.mode == "test":
         input_list = sorted(os.listdir(args.input_dir))
@@ -144,7 +148,9 @@ if __name__ == "__main__":
             "In testing dataset, PSNR is %.4f and SSIM is %.4f and LPIPS is %.4f"
             % (cumulative_psnr / num, cumulative_ssim / num, cumulative_lpips / num)
         )
-        print(f"Average time taken for prediction: {sum(time_list) / len(time_list)} seconds")
+        print(
+            f"Average time taken for prediction: {sum(time_list) / len(time_list)} seconds"
+        )
 
     else:
         print("Mode Invalid!")
