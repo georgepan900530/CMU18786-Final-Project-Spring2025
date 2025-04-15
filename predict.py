@@ -52,7 +52,7 @@ def align_to_four(img):
     return img
 
 
-def predict(image):
+def predict(image, time_list):
     # img = np.array(image, dtype=np.float32)
     # img = img.transpose((2, 0, 1))
     # image = image[np.newaxis, :, :, :]
@@ -62,15 +62,18 @@ def predict(image):
     img = transforms.ToTensor()(img)
     img = img.cuda()
     img = img.unsqueeze(0)
+    start_time = time.time()
     out = model(img)[-1]
-
+    end_time = time.time()
+    print(f"Time taken for prediction: {end_time - start_time} seconds")
+    time_list.append(end_time - start_time)
     # out = out.cpu().data
     # out = out.numpy()
     out = out.detach().cpu().numpy()
     out = out.transpose((0, 2, 3, 1))
     out = out[0, :, :, :] * 255.0
 
-    return out
+    return out, time_list
 
 
 if __name__ == "__main__":
@@ -128,11 +131,7 @@ if __name__ == "__main__":
             # gt = cv2.resize(gt, (224, 224), interpolation=cv2.INTER_AREA)
             gt = transforms.Resize((224, 224))(gt)
             gt = np.array(gt, dtype=np.uint8)
-            start_time = time.time()
-            result = predict(img)
-            end_time = time.time()
-            print(f"Time taken for prediction: {end_time - start_time} seconds")
-            time_list.append(end_time - start_time)
+            result, time_list = predict(img, time_list)
             result = np.array(result, dtype="uint8")
             cur_psnr = calc_psnr(result, gt)
             cur_ssim = calc_ssim(result, gt)
