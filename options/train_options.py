@@ -101,7 +101,7 @@ class TrainOptions:
         self.parser.add_argument(
             "--num_heads",
             type=int,
-            default=10,
+            default=8,
             help="number of heads",
         )
         self.parser.add_argument(

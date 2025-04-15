@@ -34,10 +34,50 @@ def get_args():
     parser.add_argument("--input_dir", type=str)
     parser.add_argument("--output_dir", type=str)
     parser.add_argument("--gt_dir", type=str)
-    parser.add_argument(
-        "--local_conv", action="store_true", help="use local conv for transformer"
-    )
     parser.add_argument("--ckpt_path", type=str, default="./weights/baseline_gen.pkl")
+    
+    # Transformer
+    parser.add_argument(
+        "--embed_dim",
+        type=int,
+        default=1024,
+        help="embedding dimension",
+    )
+    parser.add_argument(
+        "--num_heads",
+        type=int,
+        default=8,
+        help="number of heads",
+    )
+    parser.add_argument(
+        "--depth",
+        type=int,
+        default=12,
+        help="depth of transformer",
+    )
+    parser.add_argument(
+        "--mlp_dim",
+        type=int,
+        default=4096,
+        help="mlp dimension",
+    )
+    parser.add_argument(
+        "--dropout",
+        type=float,
+        default=0.0,
+        help="dropout rate",
+    )
+    parser.add_argument(
+        "--patch_size",
+        type=int,
+        default=16,
+        help="patch size",
+    )
+    parser.add_argument(
+        "--local_conv",
+        action="store_true",
+        help="use local conv for transformer",
+    )
     args = parser.parse_args()
     return args
 
@@ -82,7 +122,7 @@ if __name__ == "__main__":
     if args.model == "dsconv":
         model = DSConvGenerator().cuda()
     elif args.model == "transformer":
-        model = GeneratorWithTransformer(local_conv=args.local_conv).cuda()
+        model = GeneratorWithTransformer(local_conv=args.local_conv, num_heads=10).cuda()
     else:
         model = Generator().cuda()
     model.load_state_dict(torch.load(args.ckpt_path))
