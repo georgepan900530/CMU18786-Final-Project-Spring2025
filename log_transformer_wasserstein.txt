@@ -1,2 +1,2 @@
-In testing dataset, PSNR is 28.7516 and SSIM is 0.9337 and LPIPS is 0.0583
-Average time taken for prediction: 0.07106383915605216 seconds
+In testing dataset, PSNR is 28.2063 and SSIM is 0.9214 and LPIPS is 0.0687
+Average time taken for prediction: 0.07247797374067635 seconds
