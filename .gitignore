@@ -8,3 +8,4 @@ weights/
 *.jpg
 *.png
 test.py
+*.txt
