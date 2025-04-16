@@ -122,7 +122,7 @@ if __name__ == "__main__":
     if args.model == "dsconv":
         model = DSConvGenerator().cuda()
     elif args.model == "transformer":
-        model = GeneratorWithTransformer(local_conv=args.local_conv, num_heads=10).cuda()
+        model = GeneratorWithTransformer(local_conv=args.local_conv, num_heads=args.num_heads, embed_dim=args.embed_dim, depth=args.depth, mlp_dim=args.mlp_dim, dropout=args.dropout, patch_size=args.patch_size).cuda()
     else:
         model = Generator().cuda()
     model.load_state_dict(torch.load(args.ckpt_path))
