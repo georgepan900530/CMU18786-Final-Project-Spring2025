@@ -134,6 +134,7 @@ if __name__ == "__main__":
             os.makedirs(args.output_dir)
         input_list = sorted(os.listdir(args.input_dir))
         num = len(input_list)
+        time_list = []
         for i in range(num):
             print("Processing image: %s" % (input_list[i]))
             # img = cv2.imread(os.path.join(args.input_dir, input_list[i]))
@@ -141,7 +142,7 @@ if __name__ == "__main__":
             width, height = img.size
             # img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_AREA)
             # img = align_to_four(img)
-            result = predict(img)
+            result, _ = predict(img, time_list)
             result = result.astype(np.uint8)
             result = Image.fromarray(result)
             result = result.resize((width, height))
